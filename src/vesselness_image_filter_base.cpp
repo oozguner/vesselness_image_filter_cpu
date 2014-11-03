@@ -114,6 +114,7 @@ void  VesselnessNodeBase::imgTopicCallback(const sensor_msgs::ImageConstPtr& msg
     //The result is outputImage.
     //Publish this output
     //Fill in the headers and encoding type
+    cv_Out.image = outputImage;
     cv_Out.header =  cv_ptrIn->header;
     cv_Out.encoding = string("32FC2");
 
@@ -122,4 +123,14 @@ void  VesselnessNodeBase::imgTopicCallback(const sensor_msgs::ImageConstPtr& msg
     /*Mat outputImageDisp,preOutputImageDisp; */
 
     std::cout << "Finished an image" << std::endl;
+}
+
+
+
+VesselnessNodeBase::~VesselnessNodeBase()
+{
+
+
+
+
 }

@@ -78,7 +78,7 @@ VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar):VesselnessNod
 }
 
 
-void VesselnessNodeCPU::setKernels(){
+void VesselnessNodeCPU::initKernels(){
 
     double var = hessParam.variance;
 
@@ -351,4 +351,26 @@ void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam)
 		else dstPointer[0] = (newAngle);
 	}
 	return;
+}
+
+
+//destructor function
+VesselnessNodeCPU::~VesselnessNodeCPU(){
+    //clean up the Mats and memory
+
+
+
+}
+
+
+void VesselnessNodeCPU::allocateMem(int xIn,int yIn){
+
+    imgAllocSize.width = xIn;
+    imgAllocSize.height = yIn;
+    outputImage.create(imgAllocSize,CV_32FC2);
+
+
+
+
+
 }

@@ -133,8 +133,7 @@ public:
 
     //memory allocation function.
     virtual void allocateMem(int,int) = 0;
-    virtual void setKernels()=0;
-    //virtual void initKernels()= 0;
+    virtual void initKernels()= 0;
 
 };
 

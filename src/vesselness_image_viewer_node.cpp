@@ -52,16 +52,28 @@ void convertSegmentImage(const Mat&src,Mat&dst){
 	Mat temp2,temp3;
 
     std::cout << "Scaled the image" << std::endl;
+    convertScaleAbs(temp1,temp2,255.0);
+   
+    
     temp3.create(src.rows,src.cols,CV_8UC3);
 
 	Mat tempHalf=Mat::ones(src.rows,src.cols,CV_8UC1)*127;
 	
-    convertScaleAbs(temp1,temp2,255.0);
 	
 	Mat in[] = {temp2,tempHalf};
 
+    std::cout << "src depth 0 "  << temp2.depth() << std::endl;
 
-	// forming an array of matrices is a quite efficient operation,
+    std::cout << "src depth 1 "  << tempHalf.depth() << std::endl;
+    std::cout << "dst depth   "  << temp3.depth() << std::endl;
+
+    std::cout << "src channels b  "  << src.channels() << std::endl;
+    std::cout << "src channels 0 "  << temp2.channels() << std::endl;
+    std::cout << "src channels 1 "  << tempHalf.channels() << std::endl;
+    std::cout << "dst channels   "  << temp3.channels() << std::endl;
+
+
+    // forming an array of matrices is a quite efficient operation,
 	// because the matrix data is not copied, only the headers
 	// rgba[0] -> bgr[2], rgba[1] -> bgr[1],
 	// rgba[2] -> bgr[0], rgba[3] -> alpha[0]

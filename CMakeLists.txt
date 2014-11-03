@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vesselness_image_filter)
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
@@ -44,6 +44,10 @@ add_library(vesselness_image_cpu
 
 
 ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/cpu_src/vesselness_image_filter_cpu_node.cpp)
+
+ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
+
+
 #ADD_EXECUTABLE(vesselness_image_filter_cpu src/cpu_src/vesselness_image_filter_gpu.cpp)
 #ADD_DEPENDENCIES(beginner_tutorials_node T)
 
@@ -60,6 +64,15 @@ target_link_libraries(vesselness_image_filter_cpu_node
    ${catkin_LIBRARIES}
  )
 
-#target_link_libraries(vesselness_image_viewer_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(vesselness_image_cpu
+  vesselness_image_base
+   ${catkin_LIBRARIES}
+ )
+
+target_link_libraries(vesselness_image_base
+   ${catkin_LIBRARIES}
+ )
+
+target_link_libraries(vesselness_image_filter_viewer_node
+   ${catkin_LIBRARIES}
+ )

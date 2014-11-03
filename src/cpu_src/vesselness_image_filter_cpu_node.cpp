@@ -50,7 +50,7 @@
 int main(int argc, char** argv)
 {
   
-  ros::init(argc, argv, "image_converter");
+  ros::init(argc, argv, "image_vesselness_filter_cpu");
   VesselnessNodeCPU vs("/rgb/image_raw");
   
   std::cout << "ready to process an image" << std::endl;
