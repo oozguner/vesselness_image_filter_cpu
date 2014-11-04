@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vesselness_image_filter)
 #find_package(OpenCV REQUIRED)
+find_package(CUDA QUIET REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
@@ -37,6 +38,9 @@ add_library(vesselness_image_cpu
    src/cpu_src/vesselness_image_filter_cpu.cpp
  )
 
+
+cuda_add_library( 
+
 #add_library(vesselness_image_filter
 #   src/${PROJECT_NAME}/src/vesselness_image_filter.cpp
 # )
@@ -47,6 +51,7 @@ ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/cpu_src/vesselness_image_fil
 
 ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
 
+CUDA_ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
 
 #ADD_EXECUTABLE(vesselness_image_filter_cpu src/cpu_src/vesselness_image_filter_gpu.cpp)
 #ADD_DEPENDENCIES(beginner_tutorials_node T)
