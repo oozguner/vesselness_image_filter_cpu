@@ -89,8 +89,6 @@ private:
 	
     //status booleans
     bool kernelReady;
-    bool allocatedPageLock;
-    bool allocatedGPUMem;
     bool allocatedKernels;
 
 

@@ -87,18 +87,18 @@ private:
     Mat srcMats;
     Mat dstMats;
 
-	gpu::GpuMat gaussG;
+    gpu::GpuMat gaussG;
 
 
-	//status booleans
-	bool kernelReady;
-	bool allocatedPageLock;
-	bool allocatedGPUMem;
+    //status booleans
+    bool kernelReady;
+    bool allocatedPageLock;
+    bool allocatedGPUMem;
     bool allocatedKernels;
 
 
     //Hessian Kernel Parameters:
-    gaussParam hessParam;
+
 
     //Eigen weight params:
     float betaParam;
@@ -107,6 +107,8 @@ private:
     //Output post processing Parameters:
     gaussParam postProcess;
 
+    
+    void  setKernels();
     void  initKernels();
     void  updateKernels();
 
@@ -117,6 +119,8 @@ private:
 
     void allocateMem(int,int);
     void deallocateMem();
+
+
 
     gpu::CudaMem srcMatMem;
     gpu::CudaMem dstMatMem;
@@ -137,6 +141,7 @@ private:
     void segmentingThread();
 
     //Update object parameters.
+    //
     void updateKernels(const segmentThinParam &);
 
 	void allocateMem(Size);
@@ -155,7 +160,6 @@ public:
     VesselnessNodeGPU(segmentThinParam); //constructor
     VesselnessNodeGPU();    //default constructor
     ~VesselnessNodeGPU();   //deconstructor
-
 
 
 };
