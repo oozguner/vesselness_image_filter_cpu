@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vesselness_image_filter)
-#find_package(OpenCV REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(CUDA QUIET REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
@@ -23,12 +23,19 @@ catkin_package(
 #SET(CUDA_NVCC_FLAGS "-arch=sm_13" CACHE STRING "nvcc flags" FORCE)
 #SET (CUDA_VERBOSE_BUILD ON CACHE BOOL "nvcc verbose" FORCE)
 SET(LIB_TYPE STATIC) 
-#CUDA_ADD_LIBRARY(TestLib ${LIB_TYPE} src/)
+
 
 include_directories(
-  include 
+  include
+  include/vesselness_image_filter/cpu_include
+  include/vesselness_image_filter/gpu_include
+  include/vesselness_image_filter
   ${catkin_INCLUDE_DIRS}
 )
+
+
+CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
+
 
 add_library(vesselness_image_base
    src/vesselness_image_filter_base.cpp
