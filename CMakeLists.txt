@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(vesselness_image_filter)
 find_package(OpenCV REQUIRED)
-find_package(CUDA QUIET REQUIRED)
+find_package(CUDA  REQUIRED)
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
@@ -35,6 +35,7 @@ include_directories(
 
 
 CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
+#CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesslness_image_filter_gpu.cu)
 
 
 add_library(vesselness_image_base

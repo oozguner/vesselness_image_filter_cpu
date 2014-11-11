@@ -46,7 +46,7 @@
 #include <vesselness_image_filter/cpu_include/vesselness_filter_node_cpu.h>
 
 
-//This file instantiates a node object of the vesselness gpu node.
+//This file instantiates a node object of the vesselness cpu node.
 int main(int argc, char** argv)
 {
   

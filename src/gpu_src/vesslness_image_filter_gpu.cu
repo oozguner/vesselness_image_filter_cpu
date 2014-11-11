@@ -1,15 +1,42 @@
 /*
-* imageSegmentationGPUObj.cu:
-*
-* Created By Russell Jackson
-*  07/24/2014
-*/
+ * Software License Agreement (BSD License)
+ *
+ *  Copyright (c) 2014 Case Western Reserve University
+ *    Russell C Jackson <rcj33@case.edu>
+ *
+ *  All rights reserved.
+ *
+ *  Redistribution and use in source and binary forms, with or without
+ *  modification, are permitted provided that the following conditions
+ *  are met:
+ *
+ *   * Redistributions of source code must retain the above copyright
+ *     notice, this list of conditions and the following disclaimer.
+ *   * Redistributions in binary form must reproduce the above
+ *     copyright notice, this list of conditions and the following
+ *     disclaimer in the documentation and/or other materials provided
+ *     with the distribution.
+ *   * Neither the name of Case Western Reserve Univeristy, nor the names of its
+ *     contributors may be used to endorse or promote products derived
+ *     from this software without specific prior written permission.
+ *
+ *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ *  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ *  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ *  FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ *  COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ *  INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ *  BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ *  LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ *  CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ *  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ *  ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ *  POSSIBILITY OF SUCH DAMAGE.
+ *
+ */
 
 
-#include "thinSegmentationGPU.h"
-#include "thinSegmentationKernels.cuh"
-#include <opencv2/gpu/stream_accessor.hpp> 
-#include "thinSegmentationGPU.h"
+#include <vesselness_filter_node_gpu.h>
 
 
 /*This file relies on the following external libraries:
@@ -133,34 +160,34 @@ void VesselnessNodeGPU::initKernels(){
 
 
 //This function allocates the GPU mem to save time
-void VesselnessNodeGPU::allocateGPUMem(int rows,int cols){
+void VesselnessNodeGPU::allocateMem(int rows,int cols){
 
-	for(int lr = 0; lr < 2; lr++)
-	{
-		cXX[lr].create(rows,cols,CV_32FC1);
-		cXY[lr].create(rows,cols,CV_32FC1);
-		cYY[lr].create(rows,cols,CV_32FC1);
-		preOutput[lr].create(rows,cols,CV_32FC3);
-		outputG[lr].create(rows,cols,CV_32FC3);
-		inputG[lr].create(rows,cols,CV_8UC3);
-		inputGreyG[lr].create(rows,cols,CV_8UC1);
-		inputFloat255G[lr].create(rows,cols,CV_32FC1);
-		inputFloat1G[lr].create(rows,cols,CV_32FC1);
-		scaled[lr].create(rows,cols,CV_32FC3);
-		scaledU8[lr].create(rows,cols,CV_8UC3);
-		dispOut[lr].create(rows,cols,CV_8UC3);
-	}
-	ones.create(rows,cols,CV_32FC1);
-	ones.setTo(Scalar(255.0));
+
+    //allocate the convolved hessian matrices.
+    cXX.create(rows,cols,CV_32FC1);
+    cXY.create(rows,cols,CV_32FC1);
+    cYY.create(rows,cols,CV_32FC1);
+
+
+    //allocate the other matrices.
+    preOutput.create(rows,cols,CV_32FC3);
+    outputG.create(rows,cols,CV_32FC3);
+    inputG.create(rows,cols,CV_8UC3);
+    inputGreyG.create(rows,cols,CV_8UC1);
+    inputFloat255G.create(rows,cols,CV_32FC1);
+    inputFloat1G.create(rows,cols,CV_32FC1);
+    scaled.create(rows,cols,CV_32FC3);
+    scaledU8.create(rows,cols,CV_8UC3);
+    dispOut.create(rows,cols,CV_8UC3);
+
+    ones.create(rows,cols,CV_32FC1);
+    ones.setTo(Scalar(255.0));
 
 
     //allocate the page lock memory
-	srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-	dstMatMem.create(rows, cols, CV_32FC3, CudaMem::ALLOC_PAGE_LOCKED);
+    srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
+    dstMatMem.create(rows, cols, CV_32FC2, CudaMem::ALLOC_PAGE_LOCKED);
 
-    /*don't bother with display for now*/
-    dispMatMem[0].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-    dispMatMem[1].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
 
 
 
@@ -199,31 +226,27 @@ void VesselnessNodeGPU::allocatePageLock(int rows,int cols)
 {
 
 
-	srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-	dstMatMem.create(rows, cols, CV_32FC3, CudaMem::ALLOC_PAGE_LOCKED);
+    srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
+    dstMatMem.create(rows, cols, CV_32FC2, CudaMem::ALLOC_PAGE_LOCKED);
 
     /*don't bother with display for now*/
     dispMatMem[0].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
     dispMatMem[1].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
 
-	this->allocatedPageLock = true;
+    this->allocatedPageLock = true;
 
 }
 
 
 void VesselnessNodeGPU::deallocatePageLock()
 {
-
-
     srcMatMem.release();
     dstMatMem.release();
-
     this->allocatedPageLock = false;
-
 }
 
 
-void VesselnessNodeGPU::segmentImagePairBlocking(const Mat &stSrc, Mat &stDst){
+void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
 
     //compute the size of the image
     int iX,iY;
@@ -244,55 +267,49 @@ void VesselnessNodeGPU::segmentImagePairBlocking(const Mat &stSrc, Mat &stDst){
 
     cv::gpu::Stream streamInfo;
     cudaStream_t cudaStream;
-    for(int lr = 0; lr < 2; lr++)
-    {
-        Mat srcMat = srcMatMem[lr];
-        stSrc[lr].copyTo(srcMat);
-        //inputG[lr].upload(stSrc[lr]);
 
-        //convert image to gray scale witha max of 1.0;
-        streamInfo.enqueueUpload(srcMat, inputG[lr]);
+    //upload &  convert image to gray scale witha max of 1.0;
+    streamInfo.enqueueUpload(srcMat, inputG);
 
-        gpu::cvtColor(inputG[lr],inputGreyG[lr],CV_BGR2GRAY,0,streamInfo);
+    gpu::cvtColor(inputG[lr],inputGreyG,CV_BGR2GRAY,0,streamInfo);
 
-        //perform a top hat operation.
-        //gpu::morphologyEx(inputGreyG[lr],inputGreyG2[lr],MORPH_BLACKHAT,topKernel,inputBuff1[lr],inputBuff2[lr],Point(-1,-1),1,streamInfo);
+    //perform a top hat operation.
+    //gpu::morphologyEx(inputGreyG[lr],inputGreyG2[lr],MORPH_BLACKHAT,topKernel,inputBuff1[lr],inputBuff2[lr],Point(-1,-1),1,streamInfo);
 
-        //gpu::cvtColor(inputG[lr],inputGreyG[lr],CV_BGR2GRAY,0,streamInfo[lr]);
-        //streamInfo.enqueueConvert(inputGreyG[lr], inputFloat255G[lr], CV_32FC1,1.0,0.0);
-        streamInfo.enqueueConvert(inputGreyG[lr], inputFloat255G[lr], CV_32FC1,1.0,0.0);
+    //gpu::cvtColor(inputG[lr],inputGreyG[lr],CV_BGR2GRAY,0,streamInfo[lr]);
+    //streamInfo.enqueueConvert(inputGreyG[lr], inputFloat255G[lr], CV_32FC1,1.0,0.0);
+    streamInfo.enqueueConvert(inputGreyG, inputFloat255G, CV_32FC1,1.0,0.0);
 
-        //inputGreyG[lr].convertTo(inputFloat255G[lr],CV_32FC1,1.0,0.0);
-        //gpu::divide(1/255,inputFloat255G[lr],inputFloat1G[lr],CV_32F,streamInfo);
+    //inputGreyG[lr].convertTo(inputFloat255G[lr],CV_32FC1,1.0,0.0);
+    //gpu::divide(1/255,inputFloat255G[lr],inputFloat1G[lr],CV_32F,streamInfo);
 
-        gpu::divide(inputFloat255G[lr],ones,inputFloat1G[lr],1.0,CV_32F,streamInfo);
+    gpu::divide(inputFloat255G,ones,inputFloat1G,1.0,CV_32F,streamInfo);
 
 
-        //gpu::divide(inputFloat255G[lr],Scalar(255.0,255.0,255.0),inputFloat1G[lr]);
+    //gpu::divide(inputFloat255G[lr],Scalar(255.0,255.0,255.0),inputFloat1G[lr]);
 
-        gpu::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-        gpu::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-        gpu::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-        //^^^this takes 0.7 seconds
-        //convolve the filters together to take less time?
-
-        //gpu::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX);
-        //gpu::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY);
-        //gpu::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY);
+    gpu::filter2D(inputFloat1G,cXX,-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    gpu::filter2D(inputFloat1G,cYY,-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    gpu::filter2D(inputFloat1G,cXY,-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
 
 
-        int blockX = (int) ceil((double) iX /(16.0f));
-        int blockY = (int) ceil((double) iY /(16.0f));
+    //gpu::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX);
+    //gpu::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY);
+    //gpu::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY);
 
 
-        dim3 eigBlock(blockX,blockY,1);
-        dim3 eigThread(16,16,1); 
+    int blockX = (int) ceil((double) iX /(16.0f));
+    int blockY = (int) ceil((double) iY /(16.0f));
 
-        //What about here?
-        //get the stream access first
-        cudaStream = StreamAccessor::getStream(streamInfo);
 
-        generateEigenValues<<<eigBlock,eigThread,0,cudaStream>>>(cXX[lr],cXY[lr],cYY[lr],preOutput[lr],betaParam,cParam);
+    dim3 eigBlock(blockX,blockY,1);
+    dim3 eigThread(16,16,1); 
+
+    //What about here?
+    //get the stream access first
+    cudaStream = StreamAccessor::getStream(streamInfo);
+
+    generateEigenValues<<<eigBlock,eigThread,0,cudaStream>>>(cXX,cXY,cYY,preOutput,betaParam,cParam);
         //preOutput[lr].create(iY,iX,CV_32FC3);
         //generateEigenValues<<<eigBlock,eigThread>>>(cXX[lr],cXY[lr],cYY[lr],preOutput[lr],betaParam,cParam);
 
@@ -301,7 +318,7 @@ void VesselnessNodeGPU::segmentImagePairBlocking(const Mat &stSrc, Mat &stDst){
 
         //outputG[lr] = preOutput[lr].clone();
         //streamInfo.enqueueCopy(preOutput[lr],outputG[lr]);
-        gaussAngBlur<<<eigBlock,eigThread,0,cudaStream>>>(preOutput[lr],outputG[lr],gaussG,gaussOff);
+        gaussAngBlur<<<eigBlock,eigThread,0,cudaStream>>>(preOutput,outputG,gaussG,gaussOff);
 
         //compute the display output.
     /*  multiply(outputG[lr], Scalar(1/3.141,1.0,1.0),scaled[lr],255.0,-1,streamInfo);
@@ -313,20 +330,20 @@ void VesselnessNodeGPU::segmentImagePairBlocking(const Mat &stSrc, Mat &stDst){
 
 
 
-        streamInfo.enqueueDownload(outputG[lr],dstMatMem[lr]);
+        streamInfo.enqueueDownload(outputG,dstMatMem);
 
 
         streamInfo.waitForCompletion();
 
 
-        Mat dstMat = dstMatMem[lr];
-        stDst[lr] = dstMat.clone(); 
+        Mat dstMat = dstMatMem;
+        stDst = dstMat.clone(); 
 
         /*Mat dispMat = dispMatMem[lr];
         dispMats[lr] = dispMat.clone(); */
 
     }
-    segStatus = 3;
+
 }
 
 
@@ -402,8 +419,17 @@ void VesselnessNodeGPU::getSegmentImagePair(Mat &stDst){
 
 void VesselnessNodeGPU::getSegmentDisplayPair(Mat &stDisp){
 
-		for(int lr = 0; lr <2; lr++)
-		{
-			stDisp[lr] = dispMats[lr].clone();
-		}
+        for(int lr = 0; lr <2; lr++)
+        {
+            stDisp[lr] = dispMats[lr].clone();
+        }
+}
+
+
+void VesselnessNodeGPU::allocateMem(int x,int y)
+{
+
+
+
+
 }

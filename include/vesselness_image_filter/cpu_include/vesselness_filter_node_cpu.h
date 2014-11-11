@@ -39,7 +39,7 @@
 #define IMAGESEGMENTCPUH
 
 
-#include "../vesselness_image_filter_base.h"
+#include <vesselness_image_filter_base.h>
 
 //Converts a single image into a displayable RGB format.
 void convertSegmentImageCPU(const Mat&,Mat&);
@@ -78,15 +78,15 @@ private:
     Mat gaussKernel_XY;
     Mat gaussKernel_YY;
     Mat imageMask;
-    
+
     Mat greyFloat;
     Mat greyImage;
 
-    
+
     Mat srcMats;
     Mat dstMats;
 
-	
+
     //status booleans
     bool kernelReady;
     bool allocatedKernels;

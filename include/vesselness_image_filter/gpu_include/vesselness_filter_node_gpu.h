@@ -38,10 +38,9 @@
 #ifndef IMAGESEGMENTGPUH
 #define IMAGESEGMENTGPUH
 
-#include "cuda_runtime.h"
-#include "opencv2/gpu/gpu.hpp"
-#include <opencv2/gpu/stream_accessor.hpp> 
-#include "../vesselness_image_filter_base.h"
+#include <vesselness_image_filter_base.h>
+#include <vesselness_image_filter_kernels.h>
+
 
 
 //Converts a single image into a displayable RGB format.
@@ -117,7 +116,7 @@ private:
     void deallocatePageLock();
 
 
-    void allocateMem(int,int);
+
     void deallocateMem();
 
 
@@ -134,8 +133,6 @@ private:
     //do this later...
     /*void VesselnessNodeGPU::findOutputCutoffs(float*,int = 10); */
 
-    //blocking image segmentation
-    void segmentImage(const Mat &, Mat &);
 
     //segmenting thread.
     void segmentingThread();
@@ -160,6 +157,12 @@ public:
     VesselnessNodeGPU(segmentThinParam); //constructor
     VesselnessNodeGPU();    //default constructor
     ~VesselnessNodeGPU();   //deconstructor
+
+    //inherited required functions:
+    void segmentImage(const Mat &, Mat &);
+    void allocateMem(int,int);
+    void initKernels();
+    
 
 
 };
