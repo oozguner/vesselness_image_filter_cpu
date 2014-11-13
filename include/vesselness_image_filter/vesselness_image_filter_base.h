@@ -52,93 +52,123 @@
 #include <opencv2/highgui/highgui.hpp>
 using namespace cv;
 
-/*TODO-introduce the file and its function*/
+/*
+ * This file introduces the abstract base class for the vesselness_image_filter nodes.
+ * The Base Class is VesselnessNodeBase.
+ * The base class gets derived into two forms: a CPU and a GPU based algorithm for image processing.
+ * The base class is meant to handle the ROS communication functionality as well as initialize the 
+ * members and methods required by both classes.
+ */
 
+
+/*
+ * The struct gaussParam stores the information needed to construct a simple gaussian filter kernel.
+ * The members are the variance (float) and the length of a side (int). The length of the side should always be odd.
+ */
 struct gaussParam{
-	
-	float variance;
-	int side;
+
+    float variance;
+
+    int side;
 
 };
 
+
+/*
+ * The struct segmentThinParam stores all of the variables for the vesselness segmentation
+ * This includes the pre (and post) gaussian filter parameters as well as the beta,c parameters
+ */
 struct segmentThinParam{
 
-	gaussParam preProcess;
-	gaussParam postProcess;
+    gaussParam preProcess;
+    gaussParam postProcess;
 
-	float betaParam;
-	float cParam;
-	int sobelParam;
+    float betaParam;
+    float cParam;
+
 };
 
 
-double meanAngle(const Mat & ,const Mat &);
-double angleVar(const Mat & ,const Mat &);
-void matAngleAlignment(const Mat &,Mat &,Point2d);
-void convertSegmentImage(const Mat&,Mat&);
-
-/*TODO-discuss the base class*/
+/*
+ * The VesselnessNodeBase abstract class defines members which are common to both the CPU and the GPU instantiation of
+ * the vessel_image_filter object. The base class defines all of the public members which are common accross instantiation.
+ */
 class VesselnessNodeBase{
 
 private:
-    //ROS variables
+
+
+    //ROS communication members.
     ros::NodeHandle nh_;
-    image_transport::ImageTransport it_;
-    image_transport::Subscriber image_sub_;
+
     ros::Subscriber settings_sub_;
+
+    image_transport::ImageTransport it_;
+
     image_transport::Publisher image_pub_;
+
+    image_transport::Subscriber image_sub_;
 
 
 protected:
 
-    
-    //
     Mat outputImage;
+
     Size imgAllocSize;
 
-	
-    //Hessian Kernel Parameters:
+    //vesselness image filter settings
     gaussParam hessParam;
-	
-    //Eigen weight params:
+    gaussParam postProcess;
+
     float betaParam;
     float cParam;
-    //Output post processing Parameters:
-    gaussParam postProcess;
-	
-    
-	
 
 
 public:
-	
-    //main and only constructor
+
+
+    /*
+     * The default constructor uses an input charactor to set who it subscribes to
+     * It also then initializes the publisher.
+     * Finally, the memory allocation functions are called.
+     */
     VesselnessNodeBase(const char*);
 
-
-    //default destructor: none
+    /*
+     * This is the default destructor, It is not used because this class is abstract
+     */
     ~VesselnessNodeBase(); 
 
-
-   //image masking function... in order to improve efficiency and speed.
+   /*
+    * Since (for speed) and efficiency, it would be useful to operate only on a small subset of the image,
+    * This function (while not implemented) is reserved for future use.
+    */
    //virtual void setImageMask(const Mat &) = 0;
 
-	//callback hook
+    /*
+     * imgTopicCallback. This callback hook (which activates everytime an image is received) is used to process and publish the new image.
+     */
     void  imgTopicCallback(const sensor_msgs::ImageConstPtr&);
-    //void  updateParameters(const segmentThinParam&);
 
-    
-//image processing functions
+    /*
+     * The abstract member  segmentImage is used by the image topic callback.
+     * The function segments and returns (by reference) the output image.
+     */
     virtual void segmentImage(const Mat&, Mat &)=0;
 
-    //memory allocation function.
+    /*
+     * The allocateMem is  called by constructor function.
+     * The memory allocation is different on the GPU and the CPU.
+     */
     virtual void allocateMem(int,int) = 0;
+
+    /*
+     * The initKernels function uses the parameters settings to initialize and set the
+     * gaussian filter kernels.
+     */
     virtual void initKernels()= 0;
 
 };
-
-
-
 
 
 #endif
