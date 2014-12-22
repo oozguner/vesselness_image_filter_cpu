@@ -50,11 +50,14 @@ void convertSegmentImageGPU(const Mat&,Mat&);
 class VesselnessNodeGPU: public VesselnessNodeBase {
 
 private:
+    /* private semi-static class members */
 
     //Input and output information
     gpu::GpuMat inputG;
 
     gpu::GpuMat outputG;
+
+
 
     //Intermediates:
     gpu::GpuMat cXX;
@@ -72,10 +75,12 @@ private:
     gpu::GpuMat scaledU8;
     gpu::GpuMat dispOut;
 
+
     //Gauss kernels
     gpu::GpuMat tempGPU_XX;
     gpu::GpuMat tempGPU_XY;
     gpu::GpuMat tempGPU_YY;
+    gpu::GpuMat gaussG;
 
 
     //Mat topKernel;
@@ -83,11 +88,9 @@ private:
     Mat tempCPU_XY;
     Mat tempCPU_YY;
 
+
     Mat srcMats;
     Mat dstMats;
-
-    gpu::GpuMat gaussG;
-
 
     //status booleans
     bool kernelReady;
@@ -96,17 +99,6 @@ private:
     bool allocatedKernels;
 
 
-    //Hessian Kernel Parameters:
-
-
-    //Eigen weight params:
-    float betaParam;
-    float cParam;
-
-    //Output post processing Parameters:
-    gaussParam postProcess;
-
-    
     void  setKernels();
     void  initKernels();
     void  updateKernels();
@@ -119,19 +111,12 @@ private:
 
     void deallocateMem();
 
-
-
     gpu::CudaMem srcMatMem;
     gpu::CudaMem dstMatMem;
     //gpu::CudaMem dispMatMem;
 
     cv::gpu::Stream streamInfo;
     cudaStream_t cudaStream;
-
-
-
-    //do this later...
-    /*void VesselnessNodeGPU::findOutputCutoffs(float*,int = 10); */
 
 
     //segmenting thread.
@@ -141,13 +126,11 @@ private:
     //
     void updateKernels(const segmentThinParam &);
 
-	void allocateMem(Size);
-	void deallocateMem();
 
     //this is a paged locked output data.
-    Mat pageLockedOutput; 
+    Mat pageLockedOutput;
     //this is a paged locked output data.
-    Mat pageLockedInput; 
+    Mat pageLockedInput;
 
 
 public:

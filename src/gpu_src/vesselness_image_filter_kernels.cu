@@ -153,26 +153,26 @@ __global__ void generateEigenValues(const PtrStepSzf XX,const PtrStepSzf XY,cons
 __global__ void gaussAngBlur(const PtrStepSz<float3> srcMat,PtrStepSz<float3> dstMat,PtrStepSzf gMat,int gaussOff)
 {
 
-	int x = threadIdx.x + blockIdx.x * blockDim.x; 
-	int y = threadIdx.y + blockIdx.y * blockDim.y;
-	
-	if (x < srcMat.cols && y < srcMat.rows)
-	{
-		float val = 0.0;
-		float2 dirPt;
-		dirPt.x = 0.0;
-		dirPt.y = 0.0;
+    int x = threadIdx.x + blockIdx.x * blockDim.x; 
+    int y = threadIdx.y + blockIdx.y * blockDim.y;
 
-		int gaussPixCount= (gaussOff*2+1);
-	
+    if (x < srcMat.cols && y < srcMat.rows)
+    {
+        float val = 0.0;
+        float2 dirPt;
+        dirPt.x = 0.0;
+        dirPt.y = 0.0;
 
-		for(int gx = 0; gx < gMat.cols; gx++)
-			for(int gy = 0; gy < gMat.rows; gy++)
-			{
-				int srcXPos =x-gaussOff+gx;
-				int srcYPos =y-gaussOff+gy;
+        int gaussPixCount= (gaussOff*2+1);
 
-				//constant corner assumption:
+
+        for(int gx = 0; gx < gMat.cols; gx++)
+            for(int gy = 0; gy < gMat.rows; gy++)
+            {
+                int srcXPos =x-gaussOff+gx;
+                int srcYPos =y-gaussOff+gy;
+
+                //constant corner assumption:
 				if(srcXPos < 0) srcXPos = 0;
 				if(srcYPos < 0) srcYPos = 0;
 			

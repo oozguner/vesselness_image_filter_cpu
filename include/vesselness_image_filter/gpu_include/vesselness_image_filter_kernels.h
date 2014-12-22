@@ -42,7 +42,7 @@
 
 #include <cuda_runtime.h>
 #include <opencv2/gpu/gpu.hpp>
-#include <opencv2/gpu/stream_accessor.hpp> 
+#include <opencv2/gpu/stream_accessor.hpp>
 
 /*GPU kernel defs:*/
 

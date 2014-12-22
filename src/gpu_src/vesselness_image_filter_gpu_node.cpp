@@ -42,7 +42,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <vesselness_image_filter/vesselness_image_node.h>
+#include <vesselness_image_filter/vesselness_image_filter_base.h>
+#include <vesselness_image_filter/gpu_include/vesselness_filter_node_gpu.h>
 
 
 //This file instantiates a node object of the vesselness gpu node.

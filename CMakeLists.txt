@@ -35,7 +35,7 @@ include_directories(
 
 
 CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
-#CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesslness_image_filter_gpu.cu)
+CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesslness_image_filter_gpu.cu)
 
 
 add_library(vesselness_image_base
@@ -59,7 +59,7 @@ ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/cpu_src/vesselness_image_fil
 
 ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
 
-#CUDA_ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
+CUDA_ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
 
 #ADD_EXECUTABLE(vesselness_image_filter_cpu src/cpu_src/vesselness_image_filter_gpu.cpp)
 #ADD_DEPENDENCIES(beginner_tutorials_node T)

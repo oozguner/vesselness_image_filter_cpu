@@ -163,6 +163,13 @@ public:
     virtual void allocateMem(int,int) = 0;
 
     /*
+     * The deallocateMem is  called by constructor function.
+     * The memory allocation is different on the GPU and the CPU.
+     */
+    virtual void deallocateMem() = 0;
+
+
+    /*
      * The initKernels function uses the parameters settings to initialize and set the
      * gaussian filter kernels.
      */
