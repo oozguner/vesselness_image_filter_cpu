@@ -35,7 +35,7 @@ include_directories(
 
 
 CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
-CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesslness_image_filter_gpu.cu)
+CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesselness_image_filter_gpu.cu)
 
 
 add_library(vesselness_image_base

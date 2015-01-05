@@ -63,14 +63,13 @@ VesselnessNodeGPU::~VesselnessNodeGPU(){
     //release the page lock
     if(this->allocatedPageLock)
     {
-        for(int lr = 0; lr < 2; lr++)
-        {
-            Mat temp = srcMatMem[lr];
-            temp.release();
-            temp = dstMatMem[lr];
-            temp.release();
-            this->allocatedPageLock = false;
-        }
+
+        Mat temp = srcMatMem;
+        temp.release();
+        temp = dstMatMem;
+        temp.release();
+        this->allocatedPageLock = false;
+
     }
 
 
@@ -106,12 +105,6 @@ void VesselnessNodeGPU::updateKernels(const segmentThinParam &inputParams){
 
 void VesselnessNodeGPU::ProcessImage(const Mat & src,Mat & dst)
 {
-
-
-
-
-
-
 
 
 
@@ -188,37 +181,29 @@ void VesselnessNodeGPU::allocateMem(int rows,int cols){
     srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
     dstMatMem.create(rows, cols, CV_32FC2, CudaMem::ALLOC_PAGE_LOCKED);
 
-
-
-
-
-
 }
 
 //This function allocates the GPU mem to save time
 void VesselnessNodeGPU::deallocateGPUMem(){
 
-	for(int lr = 0; lr < 2; lr++)
-	{
+   //input data
+   inputG.release();
+   inputGreyG.release();
+   inputFloat255G.release();
+   inputFloat1G.release();
 
-		//input data
-		inputG[2].release();
-		inputGreyG[2].release();
-		inputFloat255G[2].release();
-		inputFloat1G[2].release();
+   //intermediaries.
+   cXX.release();
+   cXY.release();
+   cYY.release();
 
-		//intermediaries.
-		cXX[2].release();
-		cXY[2].release();
-		cYY[2].release();
+    //output data
+    preOutput.release();
+    outputG.release();
 
-		//output data
-		preOutput[2].release();
-		outputG[2].release();
-	}
-	ones.release();
-	allocatedGPUMem = false;
-	this->segStatus = -1;
+    ones.release();
+    allocatedGPUMem = false;
+    this->segStatus = -1;
 
 }
 

@@ -49,15 +49,15 @@
 //This file instantiates a node object of the vesselness cpu node.
 int main(int argc, char** argv)
 {
-  
+
   ros::init(argc, argv, "image_vesselness_filter_cpu");
   VesselnessNodeCPU vs("/rgb/image_raw");
-  
+
   std::cout << "ready to process an image" << std::endl;
 
   while(ros::ok())
   {
-  	ros::spinOnce();
+      ros::spinOnce();
   }
   printf("Quiting the vesselness node\n");
   return 0;

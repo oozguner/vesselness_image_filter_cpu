@@ -100,16 +100,15 @@ private:
 
 
     void  setKernels();
-    void  initKernels();
     void  updateKernels();
 
 
     void allocatePageLock(int,int);
     void deallocatePageLock();
 
+    void allocateGPUMem();
+    void deallocateGPUMem();
 
-
-    void deallocateMem();
 
     gpu::CudaMem srcMatMem;
     gpu::CudaMem dstMatMem;
@@ -144,8 +143,9 @@ public:
     //inherited required functions:
     void segmentImage(const Mat &, Mat &);
     void allocateMem(int,int);
-    void initKernels();
-    
+
+    void deallocateMem();
+    void  initKernels();
 
 
 };
