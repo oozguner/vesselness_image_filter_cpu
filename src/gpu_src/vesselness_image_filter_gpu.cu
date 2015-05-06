@@ -52,33 +52,8 @@ cuda
 
 //destructorfunction
 VesselnessNodeGPU::~VesselnessNodeGPU(){
+    
 
-    //release ALL GPU Mats
-    tempGPU_XX.release();
-    tempGPU_XY.release();
-    tempGPU_YY.release();
-
-    this->deallocateGPUMem();
-
-    //release the page lock
-    if(this->allocatedPageLock)
-    {
-
-        Mat temp = srcMatMem;
-        temp.release();
-        temp = dstMatMem;
-        temp.release();
-        this->allocatedPageLock = false;
-
-    }
-
-
-    tempCPU_XX.release();
-    tempCPU_XY.release();
-    tempCPU_YY.release();
-
-
-    this->memStatus = -1;
 
 }
 
@@ -106,7 +81,7 @@ void VesselnessNodeGPU::updateKernels(const segmentThinParam &inputParams){
 void VesselnessNodeGPU::ProcessImage(const Mat & src,Mat & dst)
 {
 
-
+    deallocateGPUMem();
 
 }
 
