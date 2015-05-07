@@ -134,6 +134,7 @@ private:
 
 public:
 
+    VesselnessNodeGPU(const char* subscriptionChar);
 
     //This function needs to operate at peak speed:
     VesselnessNodeGPU(segmentThinParam); //constructor

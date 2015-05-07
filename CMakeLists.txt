@@ -35,7 +35,7 @@ include_directories(
 
 
 CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
-CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_ src/gpu_src/vesselness_image_filter_gpu.cu)
+CUDA_ADD_LIBRARY(vesselness_image_gpu src/gpu_src/vesselness_image_filter_gpu.cu)
 
 
 add_library(vesselness_image_base
@@ -77,7 +77,18 @@ target_link_libraries(vesselness_image_filter_cpu_node
    ${catkin_LIBRARIES}
  )
 
+target_link_libraries(vesselness_image_filter_gpu_node
+   vesselness_image_base
+   vesselness_image_gpu
+   ${catkin_LIBRARIES}
+ )
+
 target_link_libraries(vesselness_image_cpu
+  vesselness_image_base
+   ${catkin_LIBRARIES}
+ )
+
+target_link_libraries(vesselness_image_gpu
   vesselness_image_base
    ${catkin_LIBRARIES}
  )

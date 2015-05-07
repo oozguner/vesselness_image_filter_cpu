@@ -54,7 +54,11 @@ inline float gaussFnc(float var,float x,float y){
     return 1/(3.1415*2*var)*exp(-x*x/(2*var)-y*y/(2*var));
 }
 
+void VesselnessNodeCPU::deallocateMem()
+{
 
+
+}
 
 VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
 {
@@ -368,9 +372,6 @@ void VesselnessNodeCPU::allocateMem(int xIn,int yIn){
     imgAllocSize.width = xIn;
     imgAllocSize.height = yIn;
     outputImage.create(imgAllocSize,CV_32FC2);
-
-
-
 
 
 }

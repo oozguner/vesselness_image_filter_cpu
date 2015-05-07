@@ -49,6 +49,27 @@ cuda
 //camera images using an object with GPU support.
 
 
+VesselnessNodeGPU::VesselnessNodeGPU(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
+{
+
+    //predetermined init values. (sorta random)
+    segmentThinParam init;
+	hessParam.variance = 1.5;
+	hessParam.side = 5;
+	betaParam = 0.1;    //  betaParamIn;
+	cParam    = 0.005;     //  cParamIn;
+
+	postProcess.variance = 2.0;
+	postProcess.side = 7;
+
+	//initialize the kernels.
+	imgAllocSize = Size(-1,-1);
+    	initKernels();
+
+
+
+}
+
 
 //destructorfunction
 VesselnessNodeGPU::~VesselnessNodeGPU(){
@@ -75,16 +96,6 @@ void VesselnessNodeGPU::updateKernels(const segmentThinParam &inputParams){
     initKernels();
 
 }
-
-
-
-void VesselnessNodeGPU::ProcessImage(const Mat & src,Mat & dst)
-{
-
-    deallocateGPUMem();
-
-}
-
 
 
 
@@ -121,9 +132,6 @@ void VesselnessNodeGPU::initKernels(){
 
 	//Finished...
 	this->kernelReady = true;
-
-	if(this->kernelReady && this->allocatedGPUMem) this->segStatus = 0;
-
 }
 
 
@@ -159,7 +167,7 @@ void VesselnessNodeGPU::allocateMem(int rows,int cols){
 }
 
 //This function allocates the GPU mem to save time
-void VesselnessNodeGPU::deallocateGPUMem(){
+void VesselnessNodeGPU::deallocateMem(){
 
    //input data
    inputG.release();
@@ -177,54 +185,23 @@ void VesselnessNodeGPU::deallocateGPUMem(){
     outputG.release();
 
     ones.release();
-    allocatedGPUMem = false;
-    this->segStatus = -1;
 
-}
-
-void VesselnessNodeGPU::allocatePageLock(int rows,int cols)
-{
-
-
-    srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-    dstMatMem.create(rows, cols, CV_32FC2, CudaMem::ALLOC_PAGE_LOCKED);
-
-    /*don't bother with display for now*/
-    dispMatMem[0].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-    dispMatMem[1].create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-
-    this->allocatedPageLock = true;
-
-}
-
-
-void VesselnessNodeGPU::deallocatePageLock()
-{
     srcMatMem.release();
     dstMatMem.release();
-    this->allocatedPageLock = false;
+
 }
+
 
 
 void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
-
+{
     //compute the size of the image
     int iX,iY;
 
     iX = stSrc.cols;
     iY = stSrc.rows;
 
-    if(allocatedPageLock == false)
-    {
-        this->allocatePageLock(iY,iX);
-    }
-
-
-    if(allocatedGPUMem == false)
-    {
-        this->allocateGPUMem(iY,iX);
-    }
-
+   
     cv::gpu::Stream streamInfo;
     cudaStream_t cudaStream;
 
@@ -385,11 +362,3 @@ void VesselnessNodeGPU::getSegmentDisplayPair(Mat &stDisp){
         }
 }
 
-
-void VesselnessNodeGPU::allocateMem(int x,int y)
-{
-
-
-
-
-}
