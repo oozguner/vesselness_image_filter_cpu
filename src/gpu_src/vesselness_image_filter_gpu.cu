@@ -53,7 +53,6 @@ VesselnessNodeGPU::VesselnessNodeGPU(const char* subscriptionChar):VesselnessNod
 {
 
     //predetermined init values. (sorta random)
-    segmentThinParam init;
 	hessParam.variance = 1.5;
 	hessParam.side = 5;
 	betaParam = 0.1;    //  betaParamIn;
@@ -198,17 +197,16 @@ void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
     //compute the size of the image
     int iX,iY;
 
-    iX = stSrc.cols;
-    iY = stSrc.rows;
+    iX = srcMat.cols;
+    iY = srcMat.rows;
 
-   
     cv::gpu::Stream streamInfo;
     cudaStream_t cudaStream;
 
-    //upload &  convert image to gray scale witha max of 1.0;
+    //upload &  convert image to gray scale with a max of 1.0;
     streamInfo.enqueueUpload(srcMat, inputG);
 
-    gpu::cvtColor(inputG[lr],inputGreyG,CV_BGR2GRAY,0,streamInfo);
+    gpu::cvtColor(inputG,inputGreyG,CV_BGR2GRAY,0,streamInfo);
 
     //perform a top hat operation.
     //gpu::morphologyEx(inputGreyG[lr],inputGreyG2[lr],MORPH_BLACKHAT,topKernel,inputBuff1[lr],inputBuff2[lr],Point(-1,-1),1,streamInfo);
@@ -269,21 +267,14 @@ void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
 
         streamInfo.enqueueDownload(outputG,dstMatMem);
 
-
         streamInfo.waitForCompletion();
 
-
-        Mat dstMat = dstMatMem;
-        stDst = dstMat.clone(); 
-
-        /*Mat dispMat = dispMatMem[lr];
-        dispMats[lr] = dispMat.clone(); */
-
+        Mat tempDst;
+        tempDst = dstMatMem;
+        dstMat = tempDst.clone(); 
     }
 
-}
-
-
+/*
 void VesselnessNodeGPU::findOutputCutoffs(float* guess,int iters)
 {
 
@@ -361,4 +352,4 @@ void VesselnessNodeGPU::getSegmentDisplayPair(Mat &stDisp){
             stDisp[lr] = dispMats[lr].clone();
         }
 }
-
+*/
