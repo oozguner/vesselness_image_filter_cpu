@@ -13,10 +13,10 @@ find_package(catkin REQUIRED COMPONENTS
 
 
 catkin_package(
-#  INCLUDE_DIRS include
-#  LIBRARIES vesselness_image_filter
-#  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
-#  DEPENDS system_lib
+    #   INCLUDE_DIRS include
+    # LIBRARIES vesselness_image_filter
+    # CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs
+    #   DEPENDS system_lib
 )
 
 
@@ -80,6 +80,9 @@ target_link_libraries(vesselness_image_filter_cpu_node
 target_link_libraries(vesselness_image_filter_gpu_node
    vesselness_image_base
    vesselness_image_gpu
+   vesselness_image_filter_gpu_kernels
+   ${CUDA_LIBRARIES}
+   ${OpenCV_LIBRARIES}
    ${catkin_LIBRARIES}
  )
 
@@ -89,7 +92,10 @@ target_link_libraries(vesselness_image_cpu
  )
 
 target_link_libraries(vesselness_image_gpu
+ vesselness_image_gpu
+ vesselness_image_filter_gpu_kernels
   vesselness_image_base
+   ${CUDA_LIBRARIES}
    ${catkin_LIBRARIES}
  )
 
