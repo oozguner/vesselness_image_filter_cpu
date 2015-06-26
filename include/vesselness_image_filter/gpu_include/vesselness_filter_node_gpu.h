@@ -53,34 +53,34 @@ private:
     /* private semi-static class members */
 
     //Input and output information
-    gpu::GpuMat inputG;
+    cuda::GpuMat inputG;
 
-    gpu::GpuMat outputG;
+    cuda::GpuMat outputG;
 
 
 
     //Intermediates:
-    gpu::GpuMat cXX;
-    gpu::GpuMat cXY;
-    gpu::GpuMat cYY;
+    cuda::GpuMat cXX;
+    cuda::GpuMat cXY;
+    cuda::GpuMat cYY;
 
-    gpu::GpuMat inputGreyG;
-    gpu::GpuMat inputFloat255G;
-    gpu::GpuMat ones;
-    gpu::GpuMat inputFloat1G;
+    cuda::GpuMat inputGreyG;
+    cuda::GpuMat inputFloat255G;
+    cuda::GpuMat ones;
+    cuda::GpuMat inputFloat1G;
 
-    gpu::GpuMat preOutput;
+    cuda::GpuMat preOutput;
 
-    gpu::GpuMat scaled;
-    gpu::GpuMat scaledU8;
-    gpu::GpuMat dispOut;
+    cuda::GpuMat scaled;
+    cuda::GpuMat scaledU8;
+    cuda::GpuMat dispOut;
 
 
     //Gauss kernels
-    gpu::GpuMat tempGPU_XX;
-    gpu::GpuMat tempGPU_XY;
-    gpu::GpuMat tempGPU_YY;
-    gpu::GpuMat gaussG;
+    cuda::GpuMat tempGPU_XX;
+    cuda::GpuMat tempGPU_XY;
+    cuda::GpuMat tempGPU_YY;
+    cuda::GpuMat gaussG;
 
 
     //Mat topKernel;
@@ -110,11 +110,11 @@ private:
     void deallocateGPUMem();
 
 
-    gpu::CudaMem srcMatMem;
-    gpu::CudaMem dstMatMem;
-    //gpu::CudaMem dispMatMem;
+    cuda::CudaMem srcMatMem;
+    cuda::CudaMem dstMatMem;
+    //cuda::CudaMem dispMatMem;
 
-    cv::gpu::Stream streamInfo;
+    cv::cuda::Stream streamInfo;
     cudaStream_t cudaStream;
 
 

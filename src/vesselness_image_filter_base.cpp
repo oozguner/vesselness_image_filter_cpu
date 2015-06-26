@@ -116,7 +116,7 @@ void  VesselnessNodeBase::imgTopicCallback(const sensor_msgs::ImageConstPtr& msg
     //Fill in the headers and encoding type
     cv_Out.image = outputImage;
     cv_Out.header =  cv_ptrIn->header;
-    cv_Out.encoding = string("32FC2");
+    cv_Out.encoding = std::string("32FC2");
 
     //publish the outputdata now.
     image_pub_.publish(cv_Out.toImageMsg());
