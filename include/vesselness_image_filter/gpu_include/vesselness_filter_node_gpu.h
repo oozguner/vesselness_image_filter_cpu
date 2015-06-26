@@ -47,7 +47,7 @@
 void convertSegmentImageGPU(const Mat&,Mat&);
 
 //This class extends the basic VesselnessNode based on using a GPU to complete the actual processing.
-class VesselnessNodeGPU: public VesselnessNodeBase {
+class VesselnessNodeGpu: public VesselnessNodeBase {
 
 private:
     /* private semi-static class members */
@@ -110,8 +110,8 @@ private:
     void deallocateGPUMem();
 
 
-    cuda::CudaMem srcMatMem;
-    cuda::CudaMem dstMatMem;
+    cuda::HostMem srcMatMem;
+    cuda::HostMem dstMatMem;
     //cuda::CudaMem dispMatMem;
 
     cv::cuda::Stream streamInfo;
@@ -134,12 +134,12 @@ private:
 
 public:
 
-    VesselnessNodeGPU(const char* subscriptionChar);
+    VesselnessNodeGpu(const char* subscriptionChar);
 
     //This function needs to operate at peak speed:
-    VesselnessNodeGPU(segmentThinParam); //constructor
-    VesselnessNodeGPU();    //default constructor
-    ~VesselnessNodeGPU();   //deconstructor
+    VesselnessNodeGpu(segmentThinParam); //constructor
+    VesselnessNodeGpu();    //default constructor
+    ~VesselnessNodeGpu();   //deconstructor
 
     //inherited required functions:
     void segmentImage(const Mat &, Mat &);

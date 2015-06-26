@@ -41,6 +41,7 @@
 #define GPUKERNELS_H
 
 #include <cuda_runtime.h>
+#include <opencv2/core/cuda.hpp>
 #include <opencv2/cudaarithm.hpp>
 
 

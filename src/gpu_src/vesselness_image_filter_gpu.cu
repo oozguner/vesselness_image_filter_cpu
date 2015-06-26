@@ -49,7 +49,7 @@ cuda
 //camera images using an object with GPU support.
 
 
-VesselnessNodeGPU::VesselnessNodeGPU(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
+VesselnessNodeGpu::VesselnessNodeGpu(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
 {
 
     //predetermined init values. (sorta random)
@@ -71,13 +71,13 @@ VesselnessNodeGPU::VesselnessNodeGPU(const char* subscriptionChar):VesselnessNod
 
 
 //destructorfunction
-VesselnessNodeGPU::~VesselnessNodeGPU(){
+VesselnessNodeGpu::~VesselnessNodeGpu(){
     
 
 
 }
 
-void VesselnessNodeGPU::updateKernels(const segmentThinParam &inputParams){
+void VesselnessNodeGpu::updateKernels(const segmentThinParam &inputParams){
 
     //preProcess Params
     hessParam.variance = inputParams.preProcess.variance;
@@ -98,7 +98,7 @@ void VesselnessNodeGPU::updateKernels(const segmentThinParam &inputParams){
 
 
 
-void VesselnessNodeGPU::initKernels(){
+void VesselnessNodeGpu::initKernels(){
 
 
 	//reallocate the GpuMats
@@ -135,7 +135,7 @@ void VesselnessNodeGPU::initKernels(){
 
 
 //This function allocates the GPU mem to save time
-void VesselnessNodeGPU::allocateMem(int rows,int cols){
+void VesselnessNodeGpu::allocateMem(int rows,int cols){
 
 
     //allocate the convolved hessian matrices.
@@ -160,13 +160,13 @@ void VesselnessNodeGPU::allocateMem(int rows,int cols){
 
 
     //allocate the page lock memory
-    srcMatMem.create(rows, cols, CV_8UC3, CudaMem::ALLOC_PAGE_LOCKED);
-    dstMatMem.create(rows, cols, CV_32FC2, CudaMem::ALLOC_PAGE_LOCKED);
+    srcMatMem.create(rows, cols, CV_8UC3, HostMem::ALLOC_PAGE_LOCKED);
+    dstMatMem.create(rows, cols, CV_32FC2, HostMem::ALLOC_PAGE_LOCKED);
 
 }
 
 //This function allocates the GPU mem to save time
-void VesselnessNodeGPU::deallocateMem(){
+void VesselnessNodeGpu::deallocateMem(){
 
    //input data
    inputG.release();
@@ -192,7 +192,7 @@ void VesselnessNodeGPU::deallocateMem(){
 
 
 
-void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
+void VesselnessNodeGpu::segmentImage(const Mat &srcMat,Mat &dstMat)
 {
     //compute the size of the image
     int iX,iY;
@@ -200,37 +200,38 @@ void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
     iX = srcMat.cols;
     iY = srcMat.rows;
 
-    cv::gpu::Stream streamInfo;
+    cv::cuda::Stream streamInfo;
     cudaStream_t cudaStream;
 
     //upload &  convert image to gray scale with a max of 1.0;
-    streamInfo.enqueueUpload(srcMat, inputG);
+    inputG.upload(srcMat,streamInfo);
 
-    gpu::cvtColor(inputG,inputGreyG,CV_BGR2GRAY,0,streamInfo);
+
+    cuda::cvtColor(inputG,inputGreyG,CV_BGR2GRAY,0,streamInfo);
 
     //perform a top hat operation.
-    //gpu::morphologyEx(inputGreyG[lr],inputGreyG2[lr],MORPH_BLACKHAT,topKernel,inputBuff1[lr],inputBuff2[lr],Point(-1,-1),1,streamInfo);
+    //cuda::morphologyEx(inputGreyG[lr],inputGreyG2[lr],MORPH_BLACKHAT,topKernel,inputBuff1[lr],inputBuff2[lr],Point(-1,-1),1,streamInfo);
 
-    //gpu::cvtColor(inputG[lr],inputGreyG[lr],CV_BGR2GRAY,0,streamInfo[lr]);
+    //cuda::cvtColor(inputG[lr],inputGreyG[lr],CV_BGR2GRAY,0,streamInfo[lr]);
     //streamInfo.enqueueConvert(inputGreyG[lr], inputFloat255G[lr], CV_32FC1,1.0,0.0);
-    streamInfo.enqueueConvert(inputGreyG, inputFloat255G, CV_32FC1,1.0,0.0);
+    inputGreyG.convertTo(inputFloat255G, CV_32FC1,1.0,0.0,streamInfo);
 
     //inputGreyG[lr].convertTo(inputFloat255G[lr],CV_32FC1,1.0,0.0);
-    //gpu::divide(1/255,inputFloat255G[lr],inputFloat1G[lr],CV_32F,streamInfo);
+    //cuda::divide(1/255,inputFloat255G[lr],inputFloat1G[lr],CV_32F,streamInfo);
 
-    gpu::divide(inputFloat255G,ones,inputFloat1G,1.0,CV_32F,streamInfo);
-
-
-    //gpu::divide(inputFloat255G[lr],Scalar(255.0,255.0,255.0),inputFloat1G[lr]);
-
-    gpu::filter2D(inputFloat1G,cXX,-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-    gpu::filter2D(inputFloat1G,cYY,-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-    gpu::filter2D(inputFloat1G,cXY,-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    cuda::divide(inputFloat255G,ones,inputFloat1G,1.0,CV_32F,streamInfo);
 
 
-    //gpu::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX);
-    //gpu::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY);
-    //gpu::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY);
+    //cuda::divide(inputFloat255G[lr],Scalar(255.0,255.0,255.0),inputFloat1G[lr]);
+
+    cuda::filter2D(inputFloat1G,cXX,-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    cuda::filter2D(inputFloat1G,cYY,-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    cuda::filter2D(inputFloat1G,cXY,-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+
+
+    //cuda::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX);
+    //cuda::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY);
+    //cuda::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY);
 
 
     int blockX = (int) ceil((double) iX /(16.0f));
@@ -258,14 +259,14 @@ void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
         //compute the display output.
     /*  multiply(outputG[lr], Scalar(1/3.141,1.0,1.0),scaled[lr],255.0,-1,streamInfo);
         streamInfo.enqueueConvert(scaled[lr],scaledU8[lr],CV_8UC3,1.0,0.0);
-        gpu::cvtColor(scaledU8[lr],dispOut[lr],CV_HSV2BGR,0,streamInfo);
+        cuda::cvtColor(scaledU8[lr],dispOut[lr],CV_HSV2BGR,0,streamInfo);
         streamInfo.enqueueDownload(outputG[lr],dstMatMem[lr]);
 
         streamInfo.enqueueDownload(dispOut[lr],dispMatMem[lr]); */
 
 
-
-        streamInfo.enqueueDownload(outputG,dstMatMem);
+	outputG.download(dstMatMem,streamInfo);
+        //streamInfo.enqueueDownload(outputG,dstMatMem);
 
         streamInfo.waitForCompletion();
 
@@ -275,7 +276,7 @@ void VesselnessNodeGPU::segmentImage(const Mat &srcMat,Mat &dstMat)
     }
 
 /*
-void VesselnessNodeGPU::findOutputCutoffs(float* guess,int iters)
+void VesselnessNodeGpu::::findOutputCutoffs(float* guess,int iters)
 {
 
     if(this->segStatus > 1)
@@ -288,28 +289,28 @@ void VesselnessNodeGPU::findOutputCutoffs(float* guess,int iters)
             {
                 Scalar rangeL(0,tVal,0);
                 Scalar rangeU(10.0,1.0,0);
-                gpu::GpuMat sideL;
-                gpu::GpuMat sideU;
-                gpu::GpuMat inRange3,outRange;
-                gpu::GpuMat inRange[3];
-                gpu::GpuMat buffer;
+                cuda::GpuMat sideL;
+                cuda::GpuMat sideU;
+                cuda::GpuMat inRange3,outRange;
+                cuda::GpuMat inRange[3];
+                cuda::GpuMat buffer;
 
                 buffer.create(outputG[lr].size(),outputG[lr].type());
 
-                gpu::compare(outputG[lr],rangeL, inRange3, CMP_GT);
-                //gpu::compare(outputG[lr],rangeU, sideU, CMP_LT);
-                gpu::split(inRange3, inRange);
+                cuda::compare(outputG[lr],rangeL, inRange3, CMP_GT);
+                //cuda::compare(outputG[lr],rangeU, sideU, CMP_LT);
+                cuda::split(inRange3, inRange);
 
-                //gpu::bitwise_and(sideL,sideU, inRange);
+                //cuda::bitwise_and(sideL,sideU, inRange);
 
-                gpu::bitwise_not(inRange[1],outRange);
+                cuda::bitwise_not(inRange[1],outRange);
 
-                Scalar highSum = gpu::sum(outputG[lr], inRange[1],buffer);
-                Scalar lowSum = gpu::sum(outputG[lr], outRange,buffer);
+                Scalar highSum = cuda::sum(outputG[lr], inRange[1],buffer);
+                Scalar lowSum = cuda::sum(outputG[lr], outRange,buffer);
 
                 //get the norms:
-                Scalar inSum = gpu::sum(inRange[1],buffer);
-                Scalar outSum = gpu::sum(outRange,buffer);
+                Scalar inSum = cuda::sum(inRange[1],buffer);
+                Scalar outSum = cuda::sum(outRange,buffer);
 
                 float hValf;
                 if(inSum[0] == 0.0)
@@ -337,7 +338,7 @@ void VesselnessNodeGPU::findOutputCutoffs(float* guess,int iters)
 
 
 
-void VesselnessNodeGPU::getSegmentImagePair(Mat &stDst){
+void VesselnessNodeGpu::::getSegmentImagePair(Mat &stDst){
 		for(int lr = 0; lr <2; lr++)
 		{
 			stDst[lr] = dstMats[lr].clone();
@@ -345,7 +346,7 @@ void VesselnessNodeGPU::getSegmentImagePair(Mat &stDst){
 }
 
 
-void VesselnessNodeGPU::getSegmentDisplayPair(Mat &stDisp){
+void VesselnessNodeGpu::::getSegmentDisplayPair(Mat &stDisp){
 
         for(int lr = 0; lr <2; lr++)
         {
