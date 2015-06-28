@@ -160,8 +160,8 @@ void VesselnessNodeGpu::allocateMem(int rows,int cols){
 
 
     //allocate the page lock memory
-    srcMatMem.create(rows, cols, CV_8UC3, HostMem::ALLOC_PAGE_LOCKED);
-    dstMatMem.create(rows, cols, CV_32FC2, HostMem::ALLOC_PAGE_LOCKED);
+    srcMatMem.create(rows, cols, CV_8UC3);
+    dstMatMem.create(rows, cols, CV_32FC2);
 
 }
 
@@ -223,15 +223,18 @@ void VesselnessNodeGpu::segmentImage(const Mat &srcMat,Mat &dstMat)
 
 
     //cuda::divide(inputFloat255G[lr],Scalar(255.0,255.0,255.0),inputFloat1G[lr]);
-
-    cuda::filter2D(inputFloat1G,cXX,-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-    cuda::filter2D(inputFloat1G,cYY,-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
-    cuda::filter2D(inputFloat1G,cXY,-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    cv::cuda::createLinearFilter(CV_32F,CV_32F,tempCPU_XX)->apply(inputFloat1G,cXX,streamInfo);
+    cv::cuda::createLinearFilter(CV_32F,CV_32F,tempCPU_YY)->apply(inputFloat1G,cYY,streamInfo);
+    cv::cuda::createLinearFilter(CV_32F,CV_32F,tempCPU_XY)->apply(inputFloat1G,cXY,streamInfo);
+    //cuda::filter2D(inputFloat1G,cXX,-1,tempCPU_XX,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    //cuda::filter2D(inputFloat1G,cYY,-1,tempCPU_YY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
+    //cuda::filter2D(inputFloat1G,cXY,-1,tempCPU_XY,Point(-1,-1),BORDER_DEFAULT,streamInfo);
 
 
     //cuda::filter2D(inputFloat1G[lr],cXX[lr],-1,tempCPU_XX);
     //cuda::filter2D(inputFloat1G[lr],cYY[lr],-1,tempCPU_YY);
     //cuda::filter2D(inputFloat1G[lr],cXY[lr],-1,tempCPU_XY);
+	
 
 
     int blockX = (int) ceil((double) iX /(16.0f));
