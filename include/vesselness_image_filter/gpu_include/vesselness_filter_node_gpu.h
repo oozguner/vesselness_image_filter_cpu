@@ -40,6 +40,7 @@
 
 #include <vesselness_image_filter_base.h>
 #include <vesselness_image_filter_kernels.h>
+#include <opencv2/core/cuda_stream_accessor.hpp>
 
 
 

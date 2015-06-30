@@ -246,7 +246,7 @@ void VesselnessNodeGpu::segmentImage(const Mat &srcMat,Mat &dstMat)
 
     //What about here?
     //get the stream access first
-    cudaStream = StreamAccessor::getStream(streamInfo);
+    cudaStream = cv::cuda::StreamAccessor::getStream(streamInfo);
 
     generateEigenValues<<<eigBlock,eigThread,0,cudaStream>>>(cXX,cXY,cYY,preOutput,betaParam,cParam);
         //preOutput[lr].create(iY,iX,CV_32FC3);
@@ -274,7 +274,7 @@ void VesselnessNodeGpu::segmentImage(const Mat &srcMat,Mat &dstMat)
         streamInfo.waitForCompletion();
 
         Mat tempDst;
-        tempDst = dstMatMem;
+        tempDst = dstMatMem.createMatHeader();
         dstMat = tempDst.clone(); 
     }
 
