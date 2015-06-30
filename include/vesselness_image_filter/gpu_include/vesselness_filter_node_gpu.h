@@ -59,7 +59,6 @@ private:
     cuda::GpuMat outputG;
 
 
-
     //Intermediates:
     cuda::GpuMat cXX;
     cuda::GpuMat cXY;
