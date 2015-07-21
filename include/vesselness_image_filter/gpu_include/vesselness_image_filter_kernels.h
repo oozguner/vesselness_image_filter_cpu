@@ -41,12 +41,15 @@
 #define GPUKERNELS_H
 
 #include <cuda_runtime.h>
-#include <opencv2/gpu/gpu.hpp>
-#include <opencv2/gpu/stream_accessor.hpp>
+#include <opencv2/core/cuda.hpp>
+#include <opencv2/cudaarithm.hpp>
+#include <opencv2/cudaimgproc.hpp>
+#include <opencv2/cudafilters.hpp>
+
 
 /*GPU kernel defs:*/
 
-using namespace cv::gpu;
+using namespace cv::cuda;
 
 
 __global__ void genGaussHessKernel_XX(PtrStepSzf output,float var,int offset);

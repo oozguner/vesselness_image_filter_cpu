@@ -42,7 +42,7 @@
 
 //This file defines the kernel functions used by the thin segmentation cuda code.
 
-using namespace cv::gpu;
+using namespace cv::cuda;
 
 #define gaussFncGPU(var,x,y) 1.0f/(3.1415f*2.0f*var)*((float) exp(-x*x/(2.0f*var)-y*y/(2.0f*var)));
 

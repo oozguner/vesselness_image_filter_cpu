@@ -67,11 +67,13 @@ void convertSegmentImage(const Mat&src,Mat&dst){
     std::cout << "src depth 1 "  << tempHalf.depth() << std::endl;
     std::cout << "dst depth   "  << temp3.depth() << std::endl;
 
+
+    std::cout << "source Size    " << src.size() << std::endl;
     std::cout << "src channels b  "  << src.channels() << std::endl;
     std::cout << "src channels 0 "  << temp2.channels() << std::endl;
     std::cout << "src channels 1 "  << tempHalf.channels() << std::endl;
     std::cout << "dst channels   "  << temp3.channels() << std::endl;
-
+    std::cout << "dst size       "  << temp3.size()  << std::endl;
 
     // forming an array of matrices is a quite efficient operation,
 	// because the matrix data is not copied, only the headers
@@ -105,6 +107,8 @@ public:
       &ImageConverter::imageCb, this);
   
     cv::namedWindow(OPENCV_WINDOW);
+    cv::startWindowThread();
+
   }
 
   ~ImageConverter()
@@ -125,9 +129,11 @@ public:
       return;
     }
 
+    ROS_INFO("Converting image");
     Mat outputImage;
     convertSegmentImage(cv_ptr->image,outputImage);
 
+    ROS_INFO("Showing Image");
     // Update GUI Window
     cv::imshow(OPENCV_WINDOW, outputImage);
     cv::waitKey(3);

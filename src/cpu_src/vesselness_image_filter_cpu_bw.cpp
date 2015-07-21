@@ -47,42 +47,34 @@
 #include <vesselness_image_filter/cpu_include/vesselness_filter_node_cpu.h>
 
 
-//TODO brief introductory comments...
-void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam);
 
-inline float gaussFnc(float var,float x,float y){
-    return 1/(3.1415*2*var)*exp(-x*x/(2*var)-y*y/(2*var));
-}
-
-void VesselnessNodeCPU::deallocateMem()
+void VesselnessNodeCPUBW::deallocateMem()
 {
 
 
 }
 
-VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
+VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
 {
 
     //predetermined init values. (sorta random)
     segmentThinParam init;
-	hessParam.variance = 1.5;
-	hessParam.side = 5;
-	betaParam = 0.1;    //  betaParamIn;
-	cParam    = 0.5;     //  cParamIn;
+    hessParam.variance = 1.5;
+    hessParam.side = 5;
+    betaParam = 0.1;    //  betaParamIn;
+    cParam    = 0.5;     //  cParamIn;
 
-	postProcess.variance = 2.0;
-	postProcess.side = 7;
+    postProcess.variance = 2.0;
+    postProcess.side = 7;
 
-	//initialize the kernels.
-	imgAllocSize = Size(-1,-1);
-    	initKernels();
-
-
+    //initialize the kernels.
+    imgAllocSize = Size(-1,-1);
+    initKernels();
 
 }
 
 
-void VesselnessNodeCPU::initKernels(){
+void VesselnessNodeCPUBW::initKernels(){
 
     double var = hessParam.variance;
 
@@ -142,7 +134,7 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
     float *gradPtr_xy = (float*)  greyImage_xy.data;
     float *gradPtr_yy = (float*)  greyImage_yy.data;
 
-    preOutput.create(greyImage_xx.rows,greyImage_xx.cols,CV_32FC2);
+    preOutput.create(greyImage_xx.rows,greyImage_xx.cols,CV_32FC1);
     char* preOutputImagePtr = (char*) preOutput.data;
 
     int preOutputImageStep0 =  preOutput.step[0];
@@ -173,8 +165,7 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
 
 			if(maskVal[0] == 0)
 			{
-				prePointer[0] = 0.0;
-				prePointer[1] = 0.0;
+                prePointer[0] = 0.0;
 				continue;
 			}
 		} //if(inputMask.rows == preOutput.rows && inputMask.cols == preOutput.cols)
@@ -210,43 +201,21 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
 			{
 				
 				r_Beta = 1/r_Beta;		
-				v_y = (eig0-gradPtr_xx[i])*v_x/(gradPtr_xy[i]);
-
-			}
-			else //indicates that eig1 is larger.
-			{
-						
-				v_y = (eig1-gradPtr_xx[i])*v_x/(gradPtr_xy[i]);
 
 			}
 		} //if(descriminant > 0.000000001) 
 		else
-		{
-						
-			eig0 = eig1 = -b/2;
-			r_Beta = 1.0;
-			v_y = 0.00;
-			v_x = 1.0;
+        {
 
-		}
+            eig0 = eig1 = -b/2;
+            r_Beta = 1.0;
+            v_y = 0.00;
+            v_x = 1.0;
 
-		//In this formulation, the image peak is 1.0;	
-		vMag = exp(-r_Beta*r_Beta/(betaParam))*(1-exp(-(eig0*eig0+eig1*eig1)/(cParam)));
+        }
 
-					
-		//include the eigenVector:
-		float a = atan2(v_y,v_x);
-
-
-		if(a > 0.00)
-		{
-			a2 = (a); ///3.1415;
-		}
-		else
-		{
-			a2 = (a+3.1415); ///3.1415;
-		}
-
+        //In this formulation, the image peak is 1.0;	
+        vMag = exp(-r_Beta*r_Beta/(betaParam))*(1-exp(-(eig0*eig0+eig1*eig1)/(cParam)));
 
 
         if(!(vMag <= 1) || !(vMag >= 0))
@@ -255,9 +224,7 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
             std::cout << "Bad number here\n";
         }
 
-        //HSV space
-        prePointer[0] = a2;
-        prePointer[1] = vMag;
+        prePointer[0] = vMag;
 
     }
     //Once all is said and done, blur the final image using a gaussian.
@@ -359,7 +326,7 @@ void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam)
 
 
 //destructor function
-VesselnessNodeCPU::~VesselnessNodeCPU(){
+VesselnessNodeCPUBW::~VesselnessNodeCPUBW(){
     //clean up the Mats and memory
 
 
@@ -367,7 +334,7 @@ VesselnessNodeCPU::~VesselnessNodeCPU(){
 }
 
 
-void VesselnessNodeCPU::allocateMem(int xIn,int yIn){
+void VesselnessNodeCPUBW::allocateMem(int xIn,int yIn){
 
     imgAllocSize.width = xIn;
     imgAllocSize.height = yIn;

@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 {
   
   ros::init(argc, argv, "image_vesselness_filter_gpu");
-  VesselnessNodeGPU vs("/rgb/image_raw");
+  VesselnessNodeGpu vs("/rgb/image_raw");
   
   std::cout << "ready to process an image" << std::endl;
 
