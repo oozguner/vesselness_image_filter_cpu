@@ -34,8 +34,8 @@ include_directories(
 )
 
 
-CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
-CUDA_ADD_LIBRARY(vesselness_image_gpu src/gpu_src/vesselness_image_filter_gpu.cu)
+#CUDA_ADD_LIBRARY(vesselness_image_filter_gpu_kernels src/gpu_src/vesselness_image_filter_kernels.cu)
+#CUDA_ADD_LIBRARY(vesselness_image_gpu src/gpu_src/vesselness_image_filter_gpu.cu)
 
 
 add_library(vesselness_image_base
@@ -59,7 +59,7 @@ ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/cpu_src/vesselness_image_fil
 
 ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
 
-ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
+#ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
 
 #ADD_EXECUTABLE(vesselness_image_filter_cpu src/cpu_src/vesselness_image_filter_gpu.cpp)
 #ADD_DEPENDENCIES(beginner_tutorials_node T)
@@ -77,27 +77,27 @@ target_link_libraries(vesselness_image_filter_cpu_node
    ${catkin_LIBRARIES}
  )
 
-target_link_libraries(vesselness_image_filter_gpu_node
-   vesselness_image_base
-   vesselness_image_gpu
-   vesselness_image_filter_gpu_kernels
-   ${CUDA_LIBRARIES}
-   ${OpenCV_LIBRARIES}
-   ${catkin_LIBRARIES}
- )
+#target_link_libraries(vesselness_image_filter_gpu_node
+#   vesselness_image_base
+#  vesselness_image_gpu
+#  vesselness_image_filter_gpu_kernels
+#  ${CUDA_LIBRARIES}
+#  ${OpenCV_LIBRARIES}
+#  ${catkin_LIBRARIES}
+# )
 
 target_link_libraries(vesselness_image_cpu
   vesselness_image_base
    ${catkin_LIBRARIES}
  )
 
-target_link_libraries(vesselness_image_gpu
- vesselness_image_gpu
- vesselness_image_filter_gpu_kernels
-  vesselness_image_base
-   ${CUDA_LIBRARIES}
-   ${catkin_LIBRARIES}
- )
+#target_link_libraries(vesselness_image_gpu
+# vesselness_image_gpu
+# vesselness_image_filter_gpu_kernels
+#  vesselness_image_base
+#   ${CUDA_LIBRARIES}
+#   ${catkin_LIBRARIES}
+# )
 
 target_link_libraries(vesselness_image_base
    ${catkin_LIBRARIES}
