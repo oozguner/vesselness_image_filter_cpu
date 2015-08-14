@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <package>
-  <name>vesselness_image_filter</name>
+  <name>vesselness_image_filter_cpu</name>
   <version>0.0.0</version>
-  <description>The vesselness_image_filter package</description>
+  <description>The vesselness_image_filter_cpu package</description>
 
   <!-- One maintainer tag required, multiple allowed, one person per tag --> 
   <!-- Example:  -->

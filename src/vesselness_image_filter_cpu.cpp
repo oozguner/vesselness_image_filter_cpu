@@ -43,16 +43,13 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <vesselness_image_filter/vesselness_image_filter_base.h>
-#include <vesselness_image_filter/cpu_include/vesselness_filter_node_cpu.h>
+#include <vesselness_image_filter_common/vesselness_image_filter_common.h>
+#include <vesselness_image_filter_cpu/vesselness_filter_node_cpu.h>
 
 
 //TODO brief introductory comments...
 void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam);
 
-inline float gaussFnc(float var,float x,float y){
-    return 1/(3.1415*2*var)*exp(-x*x/(2*var)-y*y/(2*var));
-}
 
 void VesselnessNodeCPU::deallocateMem()
 {
@@ -60,7 +57,7 @@ void VesselnessNodeCPU::deallocateMem()
 
 }
 
-VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
+VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
 
     //predetermined init values. (sorta random)
@@ -72,10 +69,10 @@ VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar):VesselnessNod
 
 	postProcess.variance = 2.0;
 	postProcess.side = 7;
-
-	//initialize the kernels.
-	imgAllocSize = Size(-1,-1);
-    	initKernels();
+    outputChannels = 2;
+    //initialize the kernels.
+    imgAllocSize = Size(-1,-1);
+    initKernels();
 
 
 

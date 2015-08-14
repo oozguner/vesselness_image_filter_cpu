@@ -39,7 +39,7 @@
 #define IMAGESEGMENTCPUH
 
 
-#include <vesselness_image_filter_base.h>
+#include <vesselness_image_filter_common/vesselness_image_filter_common.h>
 
 //Converts a single image into a displayable RGB format.
 void convertSegmentImageCPU(const Mat&,Mat&);
@@ -116,7 +116,7 @@ private:
 public:
    
     //This function needs to operate at peak speed:
-    VesselnessNodeCPU(const char*); //constructor
+    VesselnessNodeCPU(const char*,const char*); //constructor
     VesselnessNodeCPU();    //default constructor
     ~VesselnessNodeCPU();   //deconstructor
 

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(vesselness_image_filter)
+project(vesselness_image_filter_cpu)
 find_package(OpenCV REQUIRED)
-find_package(CUDA  REQUIRED)
+
 
 find_package(catkin REQUIRED COMPONENTS
   cv_bridge
@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   sensor_msgs
   std_msgs
+  vesselness_image_filter_common
 )
 
 
@@ -27,9 +28,7 @@ SET(LIB_TYPE STATIC)
 
 include_directories(
   include
-  include/vesselness_image_filter/cpu_include
-  include/vesselness_image_filter/gpu_include
-  include/vesselness_image_filter
+  include/vesselness_image_filter_cpu
   ${catkin_INCLUDE_DIRS}
 )
 
@@ -38,14 +37,14 @@ include_directories(
 #CUDA_ADD_LIBRARY(vesselness_image_gpu src/gpu_src/vesselness_image_filter_gpu.cu)
 
 
-add_library(vesselness_image_base
-   src/vesselness_image_filter_base.cpp
+
+add_library(vesselness_image_filter_cpu_lib
+   src/vesselness_image_filter_cpu.cpp
  )
 
-add_library(vesselness_image_cpu
-   src/cpu_src/vesselness_image_filter_cpu.cpp
+add_library(vesselness_image_filter_bw_cpu_lib
+   src/vesselness_image_filter_cpu_bw.cpp
  )
-
 
 #cuda_add_library( 
 
@@ -55,9 +54,14 @@ add_library(vesselness_image_cpu
 
 
 
-ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/cpu_src/vesselness_image_filter_cpu_node.cpp)
+ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/vesselness_image_filter_cpu_node.cpp)
 
-ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
+ADD_EXECUTABLE(vesselness_image_filter_cpu_bw_node src/vesselness_image_filter_cpu_bw_node.cpp)
+
+#ADD_EXECUTABLE(vesselness_image_filter_cpu_node_bw src/cpu_src/vesselness_image_filter_cpu_node_bw.cpp)
+
+
+#ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_node.cpp)
 
 #ADD_EXECUTABLE(vesselness_image_filter_gpu_node src/gpu_src/vesselness_image_filter_gpu_node.cpp)
 
@@ -71,12 +75,24 @@ ADD_EXECUTABLE(vesselness_image_filter_viewer_node src/vesselness_image_viewer_n
 #)
 
 
+#target_link_libraries(vesselness_image_filter_cpu_node_bw
+#   vesselness_image_base
+#   vesselness_image_cpu
+#   ${catkin_LIBRARIES}
+# )
+
 target_link_libraries(vesselness_image_filter_cpu_node
-   vesselness_image_base
-   vesselness_image_cpu
+   vesselness_image_filter_common_lib
+   vesselness_image_filter_cpu_lib
    ${catkin_LIBRARIES}
  )
 
+
+target_link_libraries(vesselness_image_filter_cpu_bw_node
+   vesselness_image_filter_common_lib
+   vesselness_image_filter_bw_cpu_lib
+   ${catkin_LIBRARIES}
+ )
 #target_link_libraries(vesselness_image_filter_gpu_node
 #   vesselness_image_base
 #  vesselness_image_gpu
@@ -86,10 +102,17 @@ target_link_libraries(vesselness_image_filter_cpu_node
 #  ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(vesselness_image_cpu
-  vesselness_image_base
+target_link_libraries(vesselness_image_filter_cpu_lib
+  vesselness_image_filter_common_lib
    ${catkin_LIBRARIES}
  )
+
+
+
+target_link_libraries(vesselness_image_filter_bw_cpu_lib
+    ${catkin_LIBRARIES}
+    )
+
 
 #target_link_libraries(vesselness_image_gpu
 # vesselness_image_gpu
@@ -99,10 +122,8 @@ target_link_libraries(vesselness_image_cpu
 #   ${catkin_LIBRARIES}
 # )
 
-target_link_libraries(vesselness_image_base
-   ${catkin_LIBRARIES}
- )
 
-target_link_libraries(vesselness_image_filter_viewer_node
-   ${catkin_LIBRARIES}
- )
+
+#target_link_libraries(vesselness_image_filter_viewer_node
+#   ${catkin_LIBRARIES}
+# )

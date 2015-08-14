@@ -43,8 +43,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <vesselness_image_filter/vesselness_image_filter_base.h>
-#include <vesselness_image_filter/cpu_include/vesselness_filter_node_cpu.h>
+#include <vesselness_image_filter_common/vesselness_image_filter_common.h>
+#include <vesselness_filter_node_cpu_bw.h>
 
 
 
@@ -54,7 +54,7 @@ void VesselnessNodeCPUBW::deallocateMem()
 
 }
 
-VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar):VesselnessNodeBase(subscriptionChar)
+VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
 
     //predetermined init values. (sorta random)
@@ -66,6 +66,8 @@ VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar):Vesselnes
 
     postProcess.variance = 2.0;
     postProcess.side = 7;
+    outputChannels = 1;
+
 
     //initialize the kernels.
     imgAllocSize = Size(-1,-1);
@@ -107,7 +109,7 @@ void VesselnessNodeCPUBW::initKernels(){
 
 
 
-void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
+void  VesselnessNodeCPUBW::segmentImage(const Mat& src,Mat& dst) {
 
 
     //Actual process segmentation code:
@@ -230,99 +232,13 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
     //Once all is said and done, blur the final image using a gaussian.
 
     std::cout << "One more Blur" << std::endl;
-
-    angleMagBlur(preOutput,dst,this->postProcess);
+    dst.create(src.size(),src.type());
+    Size kernelSize(postProcess.side,postProcess.side);
+    GaussianBlur(src,dst,kernelSize,postProcess.variance,postProcess.variance);
 
     return;
 }
 
-
-void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam)
-{
-
-    //reallocate the dst matrix
-    dst.create(src.size(),src.type());
-
-
-    //define a gaussian kernel
-    Mat gaussKernelA = getGaussianKernel(inputParam.side,inputParam.variance,CV_32F);
-    Mat gaussKernel = gaussKernelA*gaussKernelA.t();
-    int gaussOffset = floor((float) inputParam.side/2);
-
-
-    int imagePixCount = src.rows*src.cols;
-
-    int gaussPixCount = gaussKernel.rows*gaussKernel.cols;
-
-
-    char * gPtr =  (char*) gaussKernel.data;
-    int  gStep0 = gaussKernel.step[0];
-    int  gStep1 = gaussKernel.step[1];
-
-    char * srcPtr=  (char*) src.data;
-    int  srcStep0 = src.step[0];
-    int  srcStep1 = src.step[1];
-
-    char * dstPtr =  (char*) dst.data;
-    int  dstStep0 = dst.step[0];
-    int  dstStep1 = dst.step[1];
-
-
-    //This is a convolution...of sorts..
-
-    //TODO
-    //This will be painfully slow until the GPU computation is sorted out.
-
-    for(int i = 0; i < imagePixCount; i++)
-    {
-
-        int dstXPos =  i%src.cols;
-        int dstYPos =  (int) floor(((double) i)/((double) src.cols));
-
-        float* dstPointer =  (float*) (dstPtr+ dstStep0*dstYPos + dstStep1*dstXPos); 
-
-        float val = 0.0;
-        Point2f dirPt(0,0);
-
-        for(int j = 0; j < gaussPixCount; j++)
-        {
-
-            int gXPos = j%gaussKernel.cols;
-            int gYPos = (int) floor(((double) j)/((double) gaussKernel.cols));
-
-            float* gPointer =  (float*) (gPtr+ gStep0*gYPos + gStep1*gXPos); 
-
-            int srcXPos =dstXPos-gaussOffset+gXPos;
-            int srcYPos =dstYPos-gaussOffset+gYPos;
-
-            //constant corner assumption:
-			if(srcXPos < 0) srcXPos = 0;
-			if(srcYPos < 0) srcYPos = 0;
-			
-			if(srcXPos >= src.cols) srcXPos = src.cols-1;
-			if(srcYPos >= src.rows) srcYPos = src.rows-1;
-
-			float* srcPointer =  (float*) (srcPtr+ srcStep0*srcYPos + srcStep1*srcXPos); 
-
-			val +=srcPointer[1]*gPointer[0];
-			
-			Point2f newDir(srcPointer[1]*gPointer[0]*cos(srcPointer[0]),srcPointer[1]*gPointer[0]*sin(srcPointer[0]));
-
-			//find the cos between the two vectors;
-
-			float dotResult = newDir.dot(dirPt)/(norm(newDir)*norm(dirPt));
-
-			if(dotResult < -0.707) dirPt-=newDir;
-			else dirPt+=newDir;
-		}
-		dstPointer[2] = 0.5;
-		dstPointer[1]  = val;
-		float newAngle = atan2(dirPt.y,dirPt.x);
-		if(newAngle < 0.0) dstPointer[0] = (newAngle+3.1415);
-		else dstPointer[0] = (newAngle);
-	}
-	return;
-}
 
 
 //destructor function

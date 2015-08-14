@@ -42,8 +42,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <vesselness_image_filter/vesselness_image_filter_base.h>
-#include <vesselness_image_filter/cpu_include/vesselness_filter_node_cpu.h>
+#include <vesselness_image_filter_common/vesselness_image_filter_common.h>
+#include <vesselness_image_filter_cpu/vesselness_filter_node_cpu.h>
 
 
 //This file instantiates a node object of the vesselness cpu node.
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 {
 
   ros::init(argc, argv, "image_vesselness_filter_cpu");
-  VesselnessNodeCPU vs("/catadioptric_play/image_raw");
+  VesselnessNodeCPU vs("/catadioptric_play/image_raw","/catadioptric_play/image_thin");
 
   std::cout << "ready to process an image" << std::endl;
 
