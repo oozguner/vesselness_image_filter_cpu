@@ -46,7 +46,7 @@
 #include <vesselness_image_filter_common/vesselness_image_filter_common.h>
 #include <vesselness_filter_node_cpu_bw.h>
 
-
+using namespace cv;
 
 void VesselnessNodeCPUBW::deallocateMem()
 {
@@ -234,7 +234,7 @@ void  VesselnessNodeCPUBW::segmentImage(const Mat& src,Mat& dst) {
     std::cout << "One more Blur" << std::endl;
     dst.create(src.size(),src.type());
     Size kernelSize(postProcess.side,postProcess.side);
-    GaussianBlur(src,dst,kernelSize,postProcess.variance,postProcess.variance);
+    GaussianBlur(preOutput,dst,kernelSize,postProcess.variance,postProcess.variance);
 
     return;
 }
@@ -254,7 +254,7 @@ void VesselnessNodeCPUBW::allocateMem(int xIn,int yIn){
 
     imgAllocSize.width = xIn;
     imgAllocSize.height = yIn;
-    outputImage.create(imgAllocSize,CV_32FC2);
+    outputImage.create(imgAllocSize,CV_32FC1);
 
 
 }

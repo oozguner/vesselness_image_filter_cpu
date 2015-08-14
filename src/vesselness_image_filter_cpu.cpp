@@ -46,6 +46,7 @@
 #include <vesselness_image_filter_common/vesselness_image_filter_common.h>
 #include <vesselness_image_filter_cpu/vesselness_filter_node_cpu.h>
 
+using namespace cv;
 
 //TODO brief introductory comments...
 void angleMagBlur(const Mat &src,Mat &dst, const gaussParam inputParam);

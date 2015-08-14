@@ -42,7 +42,7 @@
 #include <vesselness_image_filter_common/vesselness_image_filter_common.h>
 
 //Converts a single image into a displayable RGB format.
-void convertSegmentImageCPU(const Mat&,Mat&);
+void convertSegmentImageCPUBW(const cv::Mat&,cv::Mat&);
 
 //This class extends the basic VesselnessNode based on using a CPU to complete the actual processing.
 class VesselnessNodeCPUBW: public VesselnessNodeBase {
@@ -50,41 +50,41 @@ class VesselnessNodeCPUBW: public VesselnessNodeBase {
 private:
 
     //Input and output information
-    Mat input;
-    Mat output;
+    cv::Mat input;
+    cv::Mat output;
 
     //Intermediates:
-    Mat cXX;
-    Mat cXY;
-    Mat cYY;
+    cv::Mat cXX;
+    cv::Mat cXY;
+    cv::Mat cYY;
 
-    Mat greyImage_xx;
-    Mat greyImage_xy;
-    Mat greyImage_yy;
+    cv::Mat greyImage_xx;
+    cv::Mat greyImage_xy;
+    cv::Mat greyImage_yy;
 
-    Mat inputGreyG;
-    Mat inputFloat255G;
-    Mat ones;
-    Mat inputFloat1G;
+    cv::Mat inputGreyG;
+    cv::Mat inputFloat255G;
+    cv::Mat ones;
+    cv::Mat inputFloat1G;
 
-    Mat preOutput;
+    cv::Mat preOutput;
 
-    Mat scaled;
-    Mat scaledU8;
-    Mat dispOut;
+    cv::Mat scaled;
+    cv::Mat scaledU8;
+    cv::Mat dispOut;
 
     //Gauss kernels
-    Mat gaussKernel_XX;
-    Mat gaussKernel_XY;
-    Mat gaussKernel_YY;
-    Mat imageMask;
+    cv::Mat gaussKernel_XX;
+    cv::Mat gaussKernel_XY;
+    cv::Mat gaussKernel_YY;
+    cv::Mat imageMask;
 
-    Mat greyFloat;
-    Mat greyImage;
+    cv::Mat greyFloat;
+    cv::Mat greyImage;
 
 
-    Mat srcMats;
-    Mat dstMats;
+    cv::Mat srcMats;
+    cv::Mat dstMats;
 
 
     //status booleans
@@ -106,7 +106,7 @@ private:
     /*TODO void VesselnessNodeGPU::findOutputCutoffs(float*,int = 10); */
 
     //blocking image segmentation
-    void segmentImage(const Mat &, Mat &);
+    void segmentImage(const cv::Mat &, cv::Mat &);
 
     
     //Update object parameters.
