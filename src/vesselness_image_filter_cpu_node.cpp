@@ -50,15 +50,15 @@
 int main(int argc, char** argv)
 {
 
-  ros::init(argc, argv, "image_vesselness_filter_cpu");
-  VesselnessNodeCPU vs("/catadioptric_play/image_raw","/catadioptric_play/image_thin");
+    ros::init(argc, argv, "image_vesselness_filter_cpu");
+    VesselnessNodeCPU vs("image_in","image_thin");
 
-  std::cout << "ready to process an image" << std::endl;
+    ROS_INFO("ready to process images");
 
-  while(ros::ok())
-  {
-      ros::spinOnce();
-  }
-  printf("Quiting the vesselness node\n");
-  return 0;
+    while(ros::ok())
+    {
+        ros::spinOnce();
+    }
+    ROS_INFO("Quiting the vesselness CPU node\n");
+    return 0;
 }
