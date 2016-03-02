@@ -60,23 +60,6 @@ void VesselnessNodeCPU::deallocateMem()
 
 VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
-
-    //predetermined init values. (sorta random)
-    segmentThinParam init;
-	hessParam.variance = 1.5;
-	hessParam.side = 5;
-	betaParam = 0.1;    //  betaParamIn;
-	cParam    = 0.5;     //  cParamIn;
-
-	postProcess.variance = 2.0;
-	postProcess.side = 7;
-    outputChannels = 2;
-    //initialize the kernels.
-    imgAllocSize = Size(-1,-1);
-    initKernels();
-
-
-
 }
 
 
@@ -109,9 +92,6 @@ void VesselnessNodeCPU::initKernels(){
         }
     }
 }
-
-
-
 
 void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
 
@@ -370,6 +350,4 @@ void VesselnessNodeCPU::allocateMem(int xIn,int yIn){
     imgAllocSize.width = xIn;
     imgAllocSize.height = yIn;
     outputImage.create(imgAllocSize,CV_32FC2);
-
-
 }
