@@ -60,20 +60,22 @@ void VesselnessNodeCPU::deallocateMem()
 
 VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
+    // initialize the kernels
+    initKernels();
+    setParamServer();
 }
 
 
 void VesselnessNodeCPU::initKernels(){
 
-    double var = hessParam.variance;
+    double var(filterParameters.hessProcess.variance);
 
     //Allocate the matrices
+    gaussKernel_XX =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
+    gaussKernel_XY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
+    gaussKernel_YY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
 
-    gaussKernel_XX =Mat(hessParam.side,hessParam.side,CV_32F);
-    gaussKernel_XY =Mat(hessParam.side,hessParam.side,CV_32F);
-    gaussKernel_YY =Mat(hessParam.side,hessParam.side,CV_32F);
-
-    int kSizeEnd = (int) (hessParam.side-1)/2;
+    int kSizeEnd = (int) (filterParameters.hessProcess.side-1)/2;
 
     for(int ix = -kSizeEnd; ix < kSizeEnd+1; ix++){
         for(int iy = -kSizeEnd; iy < kSizeEnd+1; iy++){
@@ -95,7 +97,8 @@ void VesselnessNodeCPU::initKernels(){
 
 void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
 
-
+    float betaParam(filterParameters.betaParam);
+    float cParam(filterParameters.cParam);
     //Actual process segmentation code:
     cvtColor(src,greyImage,CV_BGR2GRAY);
     greyImage.convertTo(greyFloat,CV_32FC1,1.0,0.0);
@@ -242,7 +245,7 @@ void  VesselnessNodeCPU::segmentImage(const Mat& src,Mat& dst) {
 
     std::cout << "One more Blur" << std::endl;
 
-    angleMagBlur(preOutput,dst,this->postProcess);
+    angleMagBlur(preOutput,dst,this->filterParameters.postProcess);
 
     return;
 }
@@ -345,9 +348,9 @@ VesselnessNodeCPU::~VesselnessNodeCPU(){
 }
 
 
-void VesselnessNodeCPU::allocateMem(int xIn,int yIn){
+cv::Size VesselnessNodeCPU::allocateMem(const cv::Size& sizeIn){
 
-    imgAllocSize.width = xIn;
-    imgAllocSize.height = yIn;
+    imgAllocSize= sizeIn;
     outputImage.create(imgAllocSize,CV_32FC2);
+    return imgAllocSize;
 }

@@ -56,37 +56,24 @@ void VesselnessNodeCPUBW::deallocateMem()
 
 VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
-
-    //predetermined init values. (sorta random)
-    segmentThinParam init;
-    hessParam.variance = 1.5;
-    hessParam.side = 5;
-    betaParam = 0.1;    //  betaParamIn;
-    cParam    = 0.5;     //  cParamIn;
-
-    postProcess.variance = 2.0;
-    postProcess.side = 7;
-    outputChannels = 1;
-
-
-    //initialize the kernels.
-    imgAllocSize = Size(-1,-1);
+    // initialize the kernels
     initKernels();
-
+    setParamServer();
 }
 
 
 void VesselnessNodeCPUBW::initKernels(){
 
-    double var = hessParam.variance;
+    double var(filterParameters.hessProcess.variance);
 
     //Allocate the matrices
+    
 
-    gaussKernel_XX =Mat(hessParam.side,hessParam.side,CV_32F);
-    gaussKernel_XY =Mat(hessParam.side,hessParam.side,CV_32F);
-    gaussKernel_YY =Mat(hessParam.side,hessParam.side,CV_32F);
+    gaussKernel_XX =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
+    gaussKernel_XY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
+    gaussKernel_YY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
 
-    int kSizeEnd = (int) (hessParam.side-1)/2;
+    int kSizeEnd = (int) (filterParameters.hessProcess.side-1)/2;
 
     for(int ix = -kSizeEnd; ix < kSizeEnd+1; ix++){
         for(int iy = -kSizeEnd; iy < kSizeEnd+1; iy++){
@@ -111,7 +98,8 @@ void VesselnessNodeCPUBW::initKernels(){
 
 void  VesselnessNodeCPUBW::segmentImage(const Mat& src,Mat& dst) {
 
-
+    float betaParam(filterParameters.betaParam);
+    float cParam(filterParameters.cParam);
     //Actual process segmentation code:
     cvtColor(src,greyImage,CV_BGR2GRAY);
     greyImage.convertTo(greyFloat,CV_32FC1,1.0,0.0);
@@ -233,8 +221,8 @@ void  VesselnessNodeCPUBW::segmentImage(const Mat& src,Mat& dst) {
 
     std::cout << "One more Blur" << std::endl;
     dst.create(src.size(),src.type());
-    Size kernelSize(postProcess.side,postProcess.side);
-    GaussianBlur(preOutput,dst,kernelSize,postProcess.variance,postProcess.variance);
+    Size kernelSize(filterParameters.postProcess.side,filterParameters.postProcess.side);
+    GaussianBlur(preOutput,dst,kernelSize,filterParameters.postProcess.variance,filterParameters.postProcess.variance);
 
     return;
 }
@@ -250,11 +238,9 @@ VesselnessNodeCPUBW::~VesselnessNodeCPUBW(){
 }
 
 
-void VesselnessNodeCPUBW::allocateMem(int xIn,int yIn){
+Size VesselnessNodeCPUBW::allocateMem(const Size &sizeIn){
 
-    imgAllocSize.width = xIn;
-    imgAllocSize.height = yIn;
+    imgAllocSize = sizeIn;
     outputImage.create(imgAllocSize,CV_32FC1);
-
-
+    return imgAllocSize;
 }

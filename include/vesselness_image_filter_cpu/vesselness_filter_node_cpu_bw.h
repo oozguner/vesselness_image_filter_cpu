@@ -93,14 +93,14 @@ private:
 
 
     void  setKernels();
-    void  initKernels();
+    void  initKernels() override;
     void  updateKernels();
 
 
 
     //declare the memory management functions
     //void allocateMem(Size); (declared in the abstract base class)
-    void allocateMem(int,int);
+    cv::Size allocateMem(const cv::Size &);
     void deallocateMem();
 
     /*TODO void VesselnessNodeGPU::findOutputCutoffs(float*,int = 10); */
