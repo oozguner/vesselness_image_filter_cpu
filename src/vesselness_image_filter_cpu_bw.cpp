@@ -66,8 +66,6 @@ void VesselnessNodeCPUBW::initKernels(){
     double var(filterParameters.hessProcess.variance);
 
     //Allocate the matrices
-    
-
     gaussKernel_XX =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
     gaussKernel_XY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
     gaussKernel_YY =Mat(filterParameters.hessProcess.side,filterParameters.hessProcess.side,CV_32F);
@@ -82,12 +80,9 @@ void VesselnessNodeCPUBW::initKernels(){
 
             gaussKernel_XX.at<float>(iy+kSizeEnd,ix+kSizeEnd) = (ixD*ixD)/(var*var)*gaussFnc(var,ixD,iyD)-1/(var)*gaussFnc(var,ixD,iyD);
 
-
             gaussKernel_YY.at<float>(iy+kSizeEnd,ix+kSizeEnd) = (iyD*iyD)/(var*var)*gaussFnc(var,ixD,iyD)-1/(var)*gaussFnc(var,ixD,iyD);
 
-
             gaussKernel_XY.at<float>(iy+kSizeEnd,ix+kSizeEnd) = (iyD*ixD)/(var*var)*gaussFnc(var,ixD,iyD);
-
         }
     }
 }
@@ -210,15 +205,12 @@ void  VesselnessNodeCPUBW::segmentImage(const Mat& src,Mat& dst) {
         if(!(vMag <= 1) || !(vMag >= 0))
         {
             float test = 1;
-            std::cout << "Bad number here\n";
         }
 
         prePointer[0] = vMag;
 
     }
     //Once all is said and done, blur the final image using a gaussian.
-
-    std::cout << "One more Blur" << std::endl;
     dst.create(src.size(),src.type());
     Size kernelSize(filterParameters.postProcess.side,filterParameters.postProcess.side);
     GaussianBlur(preOutput,dst,kernelSize,filterParameters.postProcess.variance,filterParameters.postProcess.variance);

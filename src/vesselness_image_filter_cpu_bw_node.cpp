@@ -51,7 +51,7 @@ int main(int argc, char** argv)
 {
 
   ros::init(argc, argv, "image_vesselness_filter_cpu");
-  VesselnessNodeCPUBW vs("/catadioptric_play/image_raw","/catadioptric_play/image_thin");
+  VesselnessNodeCPUBW vs("image_in","image_thin");
 
   std::cout << "ready to process an image" << std::endl;
 
