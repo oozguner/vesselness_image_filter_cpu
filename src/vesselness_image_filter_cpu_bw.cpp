@@ -43,8 +43,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
-#include <vesselness_image_filter_common/vesselness_image_filter_common.h>
-#include <vesselness_filter_node_cpu_bw.h>
+#include <vesselness_image_filter_cpu/vesselness_filter_node_cpu_bw.h>
 
 using namespace cv;
 
