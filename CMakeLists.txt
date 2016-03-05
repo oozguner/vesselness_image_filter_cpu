@@ -21,7 +21,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-
+catkin_package(
+)
 
 add_library(vesselness_image_filter_cpu_lib
    src/vesselness_image_filter_cpu.cpp
