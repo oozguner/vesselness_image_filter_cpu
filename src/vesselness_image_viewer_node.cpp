@@ -103,7 +103,7 @@ public:
     : it_(nh_)
   {
     // Subscrive to input video feed and publish output video feed
-    image_sub_ = it_.subscribe("/vesselness/output", 1, 
+    image_sub_ = it_.subscribe("image_thin", 1, 
       &ImageConverter::imageCb, this);
   
     cv::namedWindow(OPENCV_WINDOW);
@@ -129,14 +129,19 @@ public:
       return;
     }
 
-    ROS_INFO("Converting image");
-    Mat outputImage;
-    convertSegmentImage(cv_ptr->image,outputImage);
+    if (msg->encoding.compare(std::string("32FC2")) == 0)
+    {
+        ROS_INFO("Converting image");
+        Mat outputImage;
+        convertSegmentImage(cv_ptr->image,outputImage);
 
-    ROS_INFO("Showing Image");
-    // Update GUI Window
-    cv::imshow(OPENCV_WINDOW, outputImage);
-    cv::waitKey(3);
+        ROS_INFO("Showing Image");
+        // Update GUI Window
+        cv::imshow(OPENCV_WINDOW, outputImage);
+        cv::waitKey(3);
+    }
+    else ROS_INFO("Invalid Image");
+
 
     }
 };

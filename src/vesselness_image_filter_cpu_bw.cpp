@@ -56,6 +56,7 @@ void VesselnessNodeCPUBW::deallocateMem()
 VesselnessNodeCPUBW::VesselnessNodeCPUBW(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
     // initialize the kernels
+    outputChannels = 1;
     initKernels();
     setParamServer();
 }

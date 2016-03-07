@@ -61,6 +61,7 @@ void VesselnessNodeCPU::deallocateMem()
 VesselnessNodeCPU::VesselnessNodeCPU(const char* subscriptionChar,const char* publicationChar):VesselnessNodeBase(subscriptionChar,publicationChar)
 {
     // initialize the kernels
+    outputChannels = 2;
     initKernels();
     setParamServer();
 }

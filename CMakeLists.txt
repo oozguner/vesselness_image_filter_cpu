@@ -38,6 +38,8 @@ ADD_EXECUTABLE(vesselness_image_filter_cpu_node src/vesselness_image_filter_cpu_
 
 ADD_EXECUTABLE(vesselness_image_filter_cpu_bw_node src/vesselness_image_filter_cpu_bw_node.cpp)
 
+ADD_EXECUTABLE(vesselness_image_filter_cpu_viewer_node src/vesselness_image_viewer_node.cpp)
+
 
 target_link_libraries(vesselness_image_filter_cpu_lib
   vesselness_image_filter_common_lib
@@ -66,3 +68,7 @@ target_link_libraries(vesselness_image_filter_cpu_bw_node
    ${catkin_LIBRARIES}
  )
 
+target_link_libraries(vesselness_image_filter_cpu_viewer_node
+   ${OpenCV_LIBRARIES}
+   ${catkin_LIBRARIES}
+ )
