@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   vesselness_image_filter_common
 )
 
+
 SET(LIB_TYPE STATIC) 
 
 catkin_package()
