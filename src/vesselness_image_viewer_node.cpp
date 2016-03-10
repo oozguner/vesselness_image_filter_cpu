@@ -48,8 +48,8 @@ void convertSegmentImage(const Mat&src,Mat&dst){
 	
 		
     std::cout << "Converting the image" << std::endl;
-	Mat temp1 = src.mul(Scalar(1/3.14159,1.0));
-	Mat temp2,temp3;
+	  Mat temp1 = src.mul(Scalar(1/3.14159,1.0));
+	  Mat temp2,temp3;
 
     std::cout << "Scaled the image" << std::endl;
     convertScaleAbs(temp1,temp2,255.0);
@@ -57,34 +57,21 @@ void convertSegmentImage(const Mat&src,Mat&dst){
     
     temp3.create(src.rows,src.cols,CV_8UC3);
 
-	Mat tempHalf=Mat::ones(src.rows,src.cols,CV_8UC1)*127;
+	  Mat tempHalf=Mat::ones(src.rows,src.cols,CV_8UC1)*127;
 	
 	
-	Mat in[] = {temp2,tempHalf};
-
-    std::cout << "src depth 0 "  << temp2.depth() << std::endl;
-
-    std::cout << "src depth 1 "  << tempHalf.depth() << std::endl;
-    std::cout << "dst depth   "  << temp3.depth() << std::endl;
-
-
-    std::cout << "source Size    " << src.size() << std::endl;
-    std::cout << "src channels b  "  << src.channels() << std::endl;
-    std::cout << "src channels 0 "  << temp2.channels() << std::endl;
-    std::cout << "src channels 1 "  << tempHalf.channels() << std::endl;
-    std::cout << "dst channels   "  << temp3.channels() << std::endl;
-    std::cout << "dst size       "  << temp3.size()  << std::endl;
+	  Mat in[] = {temp2,tempHalf};
 
     // forming an array of matrices is a quite efficient operation,
-	// because the matrix data is not copied, only the headers
-	// rgba[0] -> bgr[2], rgba[1] -> bgr[1],
-	// rgba[2] -> bgr[0], rgba[3] -> alpha[0]
+	  // because the matrix data is not copied, only the headers
+	  // rgba[0] -> bgr[2], rgba[1] -> bgr[1],
+	  // rgba[2] -> bgr[0], rgba[3] -> alpha[0]
    	int from_to[] = {0,0, 1,1, 2,2};
 	
-     std::cout << "mix the image" << std::endl;
+
 
     mixChannels(in, 2, &temp3, 1, from_to, 3 );
-	cvtColor(temp3,dst,CV_HSV2BGR);
+	  cvtColor(temp3,dst,CV_HSV2BGR);
 
 }
 
