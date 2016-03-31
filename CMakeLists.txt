@@ -23,6 +23,9 @@ include_directories(
 )
 
 catkin_package(
+  INCLUDE_DIRS include
+  LIBRARIES vesselness_image_filter_cpu_lib
+  CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs vesselness_image_filter_common
 )
 
 add_library(vesselness_image_filter_cpu_lib

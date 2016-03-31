@@ -36,12 +36,43 @@
  */
 
 
-//Converts a simgle image into a displayable RGB format.
-void convertSegmentImage(const Mat&src,Mat&dst){
+// Converts a simgle image into a displayable RGB format.
+void convertSegmentImage(const cv::Mat&src,cv::Mat&dst){
 	
 	Mat tempDisplay1,tempDisplay2;
 	
 	tempDisplay1 = src.mul(Scalar(1/3.14159,1.0,1.0));
 	convertScaleAbs(tempDisplay1,tempDisplay2,255.0);
 	cvtColor(tempDisplay2,dst,CV_HSV2BGR);
+}
+
+
+void findOutputCutoff(const cv::Mat&src, double *cuttOff, int iters)
+{
+    // this refines the cuttoff mean of the image.
+	Scalar meanOut;
+
+    if (cuttoff[0] <= 0)
+    {
+	    double mean = mean(src)[1];
+	    cuttoff[0] = meanOut[lr]/2;
+    } 
+
+	for (int i(0); i < 10; i++)
+	{
+		inRange(thresh32f,Scalar(-7,cuttoffMean[lr],0),Scalar(7,1,1),threshMask);
+
+		double mean0 = mean(segmentedIn[lr],threshMask < 100)[1];
+		double mean1 = mean(segmentedIn[lr],threshMask > 100)[1];
+
+		double newCuttoffMean = mean0/2+mean1/2;
+
+		if(abs(newCuttoffMean-cuttoffMean[lr]) < 0.005){
+			lowMean[lr] = mean0;
+			highMean[lr] = mean1;
+			cuttoffMean[lr] = newCuttoffMean;
+			break;
+		}
+		else cuttoffMean[lr] = newCuttoffMean;
+	}
 }
