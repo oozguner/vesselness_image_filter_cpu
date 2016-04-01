@@ -41,41 +41,8 @@
 #include <sensor_msgs/image_encodings.h>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
-
+#include <vesselness_image_filter_cpu/vesselness_lib.h>
 using namespace cv;
-//Converts a simgle image into a displayable RGB format.
-void convertSegmentImage(const Mat&src,Mat&dst){
-	
-		
-    std::cout << "Converting the image" << std::endl;
-	  Mat temp1 = src.mul(Scalar(1/3.14159,1.0));
-	  Mat temp2,temp3;
-
-    std::cout << "Scaled the image" << std::endl;
-    convertScaleAbs(temp1,temp2,255.0);
-   
-    
-    temp3.create(src.rows,src.cols,CV_8UC3);
-
-	  Mat tempHalf=Mat::ones(src.rows,src.cols,CV_8UC1)*127;
-	
-	
-	  Mat in[] = {temp2,tempHalf};
-
-    // forming an array of matrices is a quite efficient operation,
-	  // because the matrix data is not copied, only the headers
-	  // rgba[0] -> bgr[2], rgba[1] -> bgr[1],
-	  // rgba[2] -> bgr[0], rgba[3] -> alpha[0]
-   	int from_to[] = {0,0, 1,1, 2,2};
-	
-
-
-    mixChannels(in, 2, &temp3, 1, from_to, 3 );
-	  cvtColor(temp3,dst,CV_HSV2BGR);
-
-}
-
-
 
 static const std::string OPENCV_WINDOW = "Image window";
 
@@ -118,12 +85,22 @@ public:
 
     if (msg->encoding.compare(std::string("32FC2")) == 0)
     {
-        ROS_INFO("Converting image");
+        ROS_INFO("Converting two channel image");
         Mat outputImage;
-        convertSegmentImage(cv_ptr->image,outputImage);
+        convertSegmentImageCPU(cv_ptr->image,outputImage);
 
         ROS_INFO("Showing Image");
         // Update GUI Window
+        cv::imshow(OPENCV_WINDOW, outputImage);
+        cv::waitKey(3);
+    }
+    else if (msg->encoding.compare(std::string("32FC1")) == 0)
+    {
+        ROS_INFO("Converting single channel image");
+        Mat outputImage;
+        
+        convertSegmentImageCPUBW(cv_ptr->image,outputImage);
+       
         cv::imshow(OPENCV_WINDOW, outputImage);
         cv::waitKey(3);
     }

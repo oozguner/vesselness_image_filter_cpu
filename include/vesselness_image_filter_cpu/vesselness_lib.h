@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014 Case Western Reserve University
+ *  Copyright (c) 2016 Case Western Reserve University
  *    Russell C Jackson <rcj33@case.edu>
  *
  *  All rights reserved.
@@ -16,7 +16,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Case Western Reserve Univeristy, Inc. nor the names of its
+ *   * Neither the name of Case Western Reserve University, nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -36,12 +36,23 @@
  */
 
 
-//Converts a simgle image into a displayable RGB format.
-void convertSegmentImage(const Mat&src,Mat&dst){
-	
-	Mat tempDisplay1,tempDisplay2;
-	
-	tempDisplay1 = src.mul(Scalar(1/3.14159,1.0,1.0));
-	convertScaleAbs(tempDisplay1,tempDisplay2,255.0);
-	cvtColor(tempDisplay2,dst,CV_HSV2BGR);
-}
+
+
+#ifndef VESSELNESSCPULIBH
+#define VESSELNESSCPULIBH
+
+
+
+// Converts a single image into a displayable RGB format.
+void convertSegmentImageCPU(const cv::Mat&,cv::Mat&);
+
+// Uses Otsu's method to find the mean cuttoff.
+void findOutputCutoff(const cv::Mat&, double *, int = 10);
+
+// grayscale image conversion
+void convertSegmentImageCPUBW(const cv::Mat&src,cv::Mat&dst);
+
+
+
+
+ #endif

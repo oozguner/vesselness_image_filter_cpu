@@ -41,8 +41,7 @@
 
 #include <vesselness_image_filter_common/vesselness_image_filter_common.h>
 
-//Converts a single image into a displayable RGB format.
-void convertSegmentImageCPU(const cv::Mat&,cv::Mat&);
+
 
 //This class extends the basic VesselnessNode based on using a CPU to complete the actual processing.
 class VesselnessNodeCPU: public VesselnessNodeBase {
