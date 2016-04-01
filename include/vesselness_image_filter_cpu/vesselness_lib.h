@@ -1,7 +1,7 @@
 /*
  * Software License Agreement (BSD License)
  *
- *  Copyright (c) 2014 Case Western Reserve University
+ *  Copyright (c) 2016 Case Western Reserve University
  *    Russell C Jackson <rcj33@case.edu>
  *
  *  All rights reserved.
@@ -16,7 +16,7 @@
  *     copyright notice, this list of conditions and the following
  *     disclaimer in the documentation and/or other materials provided
  *     with the distribution.
- *   * Neither the name of Case Western Reserve Univeristy, Inc. nor the names of its
+ *   * Neither the name of Case Western Reserve University, nor the names of its
  *     contributors may be used to endorse or promote products derived
  *     from this software without specific prior written permission.
  *
@@ -36,43 +36,23 @@
  */
 
 
-// Converts a simgle image into a displayable RGB format.
-void convertSegmentImage(const cv::Mat&src,cv::Mat&dst){
-	
-	Mat tempDisplay1,tempDisplay2;
-	
-	tempDisplay1 = src.mul(Scalar(1/3.14159,1.0,1.0));
-	convertScaleAbs(tempDisplay1,tempDisplay2,255.0);
-	cvtColor(tempDisplay2,dst,CV_HSV2BGR);
-}
 
 
-void findOutputCutoff(const cv::Mat&src, double *cuttOff, int iters)
-{
-    // this refines the cuttoff mean of the image.
-	Scalar meanOut;
+#ifndef VESSELNESSCPULIBH
+#define VESSELNESSCPULIBH
 
-    if (cuttoff[0] <= 0)
-    {
-	    double mean = mean(src)[1];
-	    cuttoff[0] = meanOut[lr]/2;
-    } 
 
-	for (int i(0); i < 10; i++)
-	{
-		inRange(thresh32f,Scalar(-7,cuttoffMean[lr],0),Scalar(7,1,1),threshMask);
 
-		double mean0 = mean(segmentedIn[lr],threshMask < 100)[1];
-		double mean1 = mean(segmentedIn[lr],threshMask > 100)[1];
+// Converts a single image into a displayable RGB format.
+void convertSegmentImageCPU(const cv::Mat&,cv::Mat&);
 
-		double newCuttoffMean = mean0/2+mean1/2;
+// Uses Otsu's method to find the mean cuttoff.
+void findOutputCutoff(const cv::Mat&, double *, int = 10);
 
-		if(abs(newCuttoffMean-cuttoffMean[lr]) < 0.005){
-			lowMean[lr] = mean0;
-			highMean[lr] = mean1;
-			cuttoffMean[lr] = newCuttoffMean;
-			break;
-		}
-		else cuttoffMean[lr] = newCuttoffMean;
-	}
-}
+
+
+
+
+
+
+ #endif

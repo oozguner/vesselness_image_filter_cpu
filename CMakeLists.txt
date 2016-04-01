@@ -24,12 +24,16 @@ include_directories(
 
 catkin_package(
   INCLUDE_DIRS include
-  LIBRARIES vesselness_image_filter_cpu_lib
+  LIBRARIES vesselness_lib
   CATKIN_DEPENDS cv_bridge image_transport roscpp sensor_msgs std_msgs vesselness_image_filter_common
 )
 
 add_library(vesselness_image_filter_cpu_lib
    src/vesselness_image_filter_cpu.cpp
+ )
+
+add_library(vesselness_lib
+   src/vesselness_lib.cpp
  )
 
 add_library(vesselness_image_filter_bw_cpu_lib
@@ -47,7 +51,7 @@ ADD_EXECUTABLE(vesselness_image_filter_cpu_viewer_node src/vesselness_image_view
 target_link_libraries(vesselness_image_filter_cpu_lib
   vesselness_image_filter_common_lib
   ${OpenCV_LIBRARIES}
-   ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES}
  )
 
 target_link_libraries(vesselness_image_filter_cpu_node
@@ -71,7 +75,13 @@ target_link_libraries(vesselness_image_filter_cpu_bw_node
    ${catkin_LIBRARIES}
  )
 
+target_link_libraries(vesselness_lib
+   ${OpenCV_LIBRARIES}
+   ${catkin_LIBRARIES}
+ )
+
 target_link_libraries(vesselness_image_filter_cpu_viewer_node
+   vesselness_lib
    ${OpenCV_LIBRARIES}
    ${catkin_LIBRARIES}
  )
