@@ -49,8 +49,8 @@ void convertSegmentImageCPU(const cv::Mat&,cv::Mat&);
 // Uses Otsu's method to find the mean cuttoff.
 void findOutputCutoff(const cv::Mat&, double *, int = 10);
 
-
-
+// grayscale image conversion
+void convertSegmentImageCPUBW(const cv::Mat&src,cv::Mat&dst);
 
 
 

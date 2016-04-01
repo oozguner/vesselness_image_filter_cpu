@@ -76,29 +76,10 @@ void convertSegmentImageCPU(const cv::Mat&src,cv::Mat&dst)
 //
 void convertSegmentImageCPUBW(const cv::Mat&src,cv::Mat&dst)
 {
-	cv::Mat temp1 = src.mul(cv::Scalar(1/3.14159,1.0));
-	cv::Mat temp2,temp3;
-    cv::convertScaleAbs(temp1,temp2,255.0);
-   
+	double maxVal;
+	cv::minMaxLoc(src,NULL,&maxVal, NULL, NULL);
     
-    temp3.create(src.rows,src.cols,CV_8UC3);
-
-	cv::Mat tempHalf=cv::Mat::ones(src.rows,src.cols,CV_8UC1)*127;
-	
-	
-	cv::Mat in[] = {temp2,tempHalf};
-
-    // forming an array of matrices is a quite efficient operation,
-	  // because the matrix data is not copied, only the headers
-	  // rgba[0] -> bgr[2], rgba[1] -> bgr[1],
-	  // rgba[2] -> bgr[0], rgba[3] -> alpha[0]
-   	int from_to[] = {0,0, 1,1, 2,2};
-	
-
-
-    cv::mixChannels(in, 2, &temp3, 1, from_to, 3 );
-	cv::cvtColor(temp3,dst,CV_HSV2BGR);
-
+    cv::convertScaleAbs(src,dst,(255.0/maxVal));
 }
 
 void findOutputCutoff(const cv::Mat&src, double *cuttOff, int iters)

@@ -99,14 +99,8 @@ public:
         ROS_INFO("Converting single channel image");
         Mat outputImage;
         
-        double maxVal(1);
-
-        minMaxLoc(cv_ptr->image,NULL,&maxVal, NULL, NULL);
-        ROS_INFO("%f",maxVal);
-        convertScaleAbs(cv_ptr->image,outputImage,(255.0/maxVal));
-
-        ROS_INFO("Showing Image");
-        // Update GUI Window
+        convertSegmentImageCPUBW(cv_ptr->image,outputImage);
+       
         cv::imshow(OPENCV_WINDOW, outputImage);
         cv::waitKey(3);
     }
