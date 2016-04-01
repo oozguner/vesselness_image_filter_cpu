@@ -85,9 +85,25 @@ public:
 
     if (msg->encoding.compare(std::string("32FC2")) == 0)
     {
-        ROS_INFO("Converting image");
+        ROS_INFO("Converting two channel image");
         Mat outputImage;
         convertSegmentImageCPU(cv_ptr->image,outputImage);
+
+        ROS_INFO("Showing Image");
+        // Update GUI Window
+        cv::imshow(OPENCV_WINDOW, outputImage);
+        cv::waitKey(3);
+    }
+    else if (msg->encoding.compare(std::string("32FC1")) == 0)
+    {
+        ROS_INFO("Converting single channel image");
+        Mat outputImage;
+        
+        double maxVal(1);
+
+        minMaxLoc(cv_ptr->image,NULL,&maxVal, NULL, NULL);
+        ROS_INFO("%f",maxVal);
+        convertScaleAbs(cv_ptr->image,outputImage,(255.0/maxVal));
 
         ROS_INFO("Showing Image");
         // Update GUI Window
